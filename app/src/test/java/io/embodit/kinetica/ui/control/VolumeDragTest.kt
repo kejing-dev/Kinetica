@@ -38,7 +38,7 @@ class VolumeDragTest {
 
     @Test fun aTinyWobbleKeepsTheStop() {
         val d = VolumeDrag(1)
-        d.move(1.02f); d.move(0.98f)
+        d.move(1.01f); d.move(0.995f)
         assertNull(d.finish())
         assertEquals(1, d.level)
     }
@@ -49,11 +49,22 @@ class VolumeDragTest {
         }
     }
 
-    /** Emulator 2026-11-14 (real adb swipes on the window): the SpatialUI Slider drags relative to the thumb, 20 px = +0.07. */
+    /** Emulator 2026-11-14 (real adb swipes on the window): the Slider drags relative to the thumb; 28 px ended at +0.047. */
     @Test fun theSmallestRealDragStillMoves() {
-        val d = VolumeDrag(1)
-        d.move(1.03f); d.move(1.067f)
-        assertEquals(2, d.finish())
+        for ((start, path, want) in listOf(Triple(0, listOf(0.01f, 0.047f), 1), Triple(1, listOf(1.01f, 1.041f), 2), Triple(2, listOf(1.99f, 1.955f), 1))) {
+            val d = VolumeDrag(start)
+            path.forEach { d.move(it) }
+            d.finish()
+            assertEquals("$start $path", want, d.level)
+        }
+    }
+
+    /** A pinch-tap at 52 % with a little hand jitter (several onValueChange) stays on 50 %. */
+    @Test fun aJitteryTapIsStillATap() {
+        val d = VolumeDrag(0)
+        d.move(1.04f); d.move(1.045f); d.move(1.035f)
+        d.finish()
+        assertEquals(1, d.level)
     }
 
     @Test fun longDragsSnapToTheNearestStop() {
