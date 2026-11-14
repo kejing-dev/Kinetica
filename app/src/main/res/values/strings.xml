@@ -7,7 +7,7 @@
 
     <!-- status sentence (design content.tone.lines) -->
     <string name="line_s0">Look ahead. Bench coming.</string>
-    <string name="line_s1">Tap ▶ Swing, or pinch a ball, pull, let go.</string>
+    <string name="line_s1">Tap ▶ Swing on the left, or pinch a ball, pull, let go.</string>
     <string name="line_s2">Pull it where you like, then let go.</string>
     <string name="line_s3">Watch it go. The period\'s on the brass plate.</string>
     <string name="line_s4">All still. Pull another?</string>

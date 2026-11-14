@@ -21,13 +21,13 @@ class StagePoseTest {
         for (yaw in listOf(0.0, 90.0, 180.0, 270.0, 37.0)) for (pitch in listOf(-30.0, 0.0, 30.0)) {
             val p = StagePose.defaultPose(eye, fwd(yaw, pitch))
             val toBench = p.origin - eye
-            assertEquals("horizontal distance", 0.50, hypot(toBench.x, toBench.z), 0.01)
-            assertEquals("origin 0.34 m under the eye (felt 0.59 m under, DV-K8)", -0.34, toBench.y, 1e-9)
+            assertEquals("horizontal distance", StagePose.AHEAD_M, hypot(toBench.x, toBench.z), 0.01)
+            assertEquals("origin 0.34 m under the eye (v0.1.2 DV-K13)", -StagePose.DROP_M, toBench.y, 1e-9)
             // the bench front (+Z local) points back at the eye within 10° (D10 四方位), pitch ignored (D9)
             val front = p.dirToStage(Vec3(0.0, 0.0, 1.0))
             val back = Vec3(-toBench.x, 0.0, -toBench.z).normalized()
             assertTrue("yaw $yaw pitch $pitch front off by ${Math.toDegrees(Math.acos(front.dot(back)))}°", front.dot(back) > cos(Math.toRadians(2.0)))
-            // the design eye is (0, +0.34, +0.50) in bench space
+            // the design eye is (0, +0.35, +0.66) in bench space
             assertTrue(p.toLocal(eye).dist(Layout.DESIGN_EYE) < 1e-9)
         }
     }
@@ -37,7 +37,7 @@ class StagePoseTest {
         val first = StagePose.defaultPose(eye, fwd(0.0))
         val again = StagePose.defaultPose(eye, fwd(40.0))
         assertEquals(40.0, StagePose.angleDiffDeg(again.yaw, first.yaw), 0.5)
-        assertEquals(0.50, hypot(again.origin.x - eye.x, again.origin.z - eye.z), 0.01)
+        assertEquals(StagePose.AHEAD_M, hypot(again.origin.x - eye.x, again.origin.z - eye.z), 0.01)
     }
 
     /** D29 / T16: pressed while looking at the button, then the head turns to the front and stops: the bench follows < 2°. */

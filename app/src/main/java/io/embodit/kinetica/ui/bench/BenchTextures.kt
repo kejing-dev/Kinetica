@@ -82,7 +82,7 @@ object BenchTextures {
         return bmp
     }
 
-    /** Readout plate 512 x 210 for 0.11 x 0.045 m: big 2.0 cm (measured), small 1.1 cm (ideal / answer). */
+    /** Readout plate 512 x 214 for 0.115 x 0.048 m (left wing, v0.1.2): big 2.0 cm (measured), small 1.1 cm (ideal / answer). */
     fun plate(big: String, small: String, index: Int): Bitmap {
         if (testF) return orientationTest(Layout.PLATE_PX_W, Layout.PLATE_PX_H)
         val w = Layout.PLATE_PX_W; val h = Layout.PLATE_PX_H
@@ -106,7 +106,7 @@ object BenchTextures {
         return bmp
     }
 
-    /** Nameplate plaque 512 x 194 for 0.09 x 0.034 m: KINETICA at 1.15 cm (cap ~0.8 cm, >= 0.5° from the design eye). */
+    /** Nameplate plaque 512 x 184 for 0.10 x 0.036 m (right wing, v0.1.2): KINETICA at 1.15 cm (cap ~0.8 cm, >= 0.5° from the design eye). */
     fun nameplate(text: String): Bitmap {
         if (testF) return orientationTest(Layout.NAMEPLATE_PX_W, Layout.NAMEPLATE_PX_H)
         val w = Layout.NAMEPLATE_PX_W; val h = Layout.NAMEPLATE_PX_H
@@ -127,26 +127,29 @@ object BenchTextures {
     }
 
     /**
-     * ▶ swing key face 512 x 366 for 0.056 x 0.040 m: a drawn ▶ (still) or ■ (moving) + the word at 0.95 cm
-     * (cap ~0.67 cm; the design eye needs 0.56 cm at 0.62 m, face turned 0° from the line of sight).
+     * ▶ swing key face 512 x 444 for 0.060 x 0.052 m (left wing, v0.1.2): line 1 a drawn ▶ (still) or ■ (moving) + the
+     * word at 1.12 cm, line 2 the station's hanger name at 1.12 cm (the key sits beside the window, not under its hanger,
+     * so it says which one it drives). Cap ~0.78 cm; the design eye needs <= 0.76 cm (bottom row).
      */
-    fun key(word: String, moving: Boolean, index: Int): Bitmap {
+    fun key(word: String, hanger: String, moving: Boolean, index: Int): Bitmap {
         if (testF) return orientationTest(Layout.KEY_PX_W, Layout.KEY_PX_H)
         val w = Layout.KEY_PX_W; val h = Layout.KEY_PX_H
         val (bmp, c) = brassFace(w, h, glow = moving)
         val pxPerCm = h / (Layout.KEY_H * 100).toFloat()
-        val p = ink(0.95f * pxPerCm)
+        val p = ink(1.12f * pxPerCm)
         val tw = p.measureText(word)
         val icon = 0.75f * pxPerCm
         val gap = 0.25f * pxPerCm
         val total = icon + gap + tw
         val x0 = (w - total) / 2f
+        val cy = h * 0.34f
         if (total > w * 0.92f) Log.w(TAG, "OVERFLOW key$index \"$word\" ${total.toInt()} px > ${(w * 0.92f).toInt()}")
-        if (moving) c.drawRect(x0, h / 2f - icon * 0.42f, x0 + icon * 0.84f, h / 2f + icon * 0.42f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = INK })
-        else triangle(c, x0 + icon / 2, h / 2f, icon, right = true)
+        if (moving) c.drawRect(x0, cy - icon * 0.42f, x0 + icon * 0.84f, cy + icon * 0.42f, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = INK })
+        else triangle(c, x0 + icon / 2, cy, icon, right = true)
         val fm = p.fontMetrics
         p.textAlign = Paint.Align.LEFT
-        c.drawText(word, x0 + icon + gap, h / 2f - (fm.ascent + fm.descent) / 2, p)
+        c.drawText(word, x0 + icon + gap, cy - (fm.ascent + fm.descent) / 2, p)
+        line(c, hanger, ink(1.12f * pxPerCm, bold = false), w / 2f, h * 0.72f, w * 0.92f, "key$index/hanger")
         return bmp
     }
 
@@ -159,7 +162,7 @@ object BenchTextures {
     }
 
     /**
-     * Planet label 512 x 171 for 0.12 x 0.040 m: the name at 1.2 cm (cap ~0.84 cm), g at 1.05 cm (cap ~0.74 cm; the design
+     * Planet label 512 x 171 for 0.12 x 0.040 m: the name at 1.2 cm (cap ~0.84 cm), g at 1.1 cm (cap ~0.77 cm; the design
      * eye needs >= 0.64 cm at 0.73 m), four dots for Moon / Mars / Earth / Jupiter with the current one ringed.
      */
     fun planetLabel(name: String, g: String, current: Int): Bitmap {
@@ -168,7 +171,7 @@ object BenchTextures {
         val (bmp, c) = brassFace(w, h)
         val pxPerCm = h / (Layout.SEL_LABEL_H * 100).toFloat()
         line(c, name, ink(1.2f * pxPerCm).apply { letterSpacing = 0.04f }, w / 2f, h * 0.27f, w * 0.92f, "planet/name")
-        line(c, g, ink(1.05f * pxPerCm, bold = false), w / 2f, h * 0.60f, w * 0.92f, "planet/g")
+        line(c, g, ink(1.1f * pxPerCm, bold = false), w / 2f, h * 0.60f, w * 0.92f, "planet/g")
         val colors = intArrayOf(Color.rgb(0xB8, 0xB5, 0xAE), Color.rgb(0xC0, 0x5A, 0x2E), Color.rgb(0x2E, 0x6E, 0xB4), Color.rgb(0xD8, 0xB0, 0x80))
         val r = 0.22f * pxPerCm
         val p = Paint(Paint.ANTI_ALIAS_FLAG)

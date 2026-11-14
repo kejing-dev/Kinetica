@@ -15,8 +15,8 @@ import io.embodit.kinetica.ui.theme.KineticaTheme
 
 /**
  * Full Space (design windowModel stage_plus_control_window): one Mixed Stage (manifest pico.spatial.stage.style = 1,
- * passthrough) holds the bench, placed 0.50 m ahead of the eye at desk height; all 2D UI lives in one Planar control
- * window (520 x 600 dp, native TabBar) that the system opens ahead of the head (no Placement: the Stage is not a window).
+ * passthrough) holds the bench, placed 0.66 m ahead of the eye, 0.35 m under it; all 2D UI lives in one Planar control
+ * window (800 x 420 dp landscape, native TabBar; v0.1.2 q2-1) that the system opens ahead of the head (no Placement: the Stage is not a window).
  * The Stage opens it through the level gate once the bench is placed; dragging / closing are the system controls (D21).
  */
 fun mainApp(scope: SpatialAppScope) =
@@ -25,10 +25,10 @@ fun mainApp(scope: SpatialAppScope) =
         WindowContainer(
             Containers.CONTROL,
             form = Form.Planar,
-            defaultSize = WindowContainerSize(width = 520.dp, height = 600.dp),
+            defaultSize = WindowContainerSize(width = 800.dp, height = 420.dp),
         ) {
             KineticaTheme {
-                Box(Modifier.windowConstraints(minWidth = 480.dp, minHeight = 560.dp, maxWidth = 720.dp, maxHeight = 640.dp)) { ControlWindow() }
+                Box(Modifier.windowConstraints(minWidth = 760.dp, minHeight = 400.dp, maxWidth = 960.dp, maxHeight = 520.dp)) { ControlWindow() }
             }
         }
     }

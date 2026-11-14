@@ -59,8 +59,10 @@ import io.embodit.kinetica.ui.theme.KineticaColors
 import kotlin.system.exitProcess
 
 /**
- * The control window (Planar WindowContainer the system opens ahead of the head, 520 x 600 dp): all 2D UI, two pages switched by the native
- * SpatialUI TabBar (D8): Play / Settings. No page scrolls (D44); rows are 16 dp apart (q1-1) and the block is centred. Buttons are 64 dp with words (B31).
+ * The control window (Planar WindowContainer the system opens ahead of the head, 800 x 420 dp, v0.1.2): all 2D UI, two pages switched by the native
+ * SpatialUI TabBar (D8): Play / Settings. Landscape and two columns so the window ends ~15° under the eye and the bench below it plus
+ * the wings beside it stay in the level default view (QA #2 q2-1). No page scrolls (D44); rows are 16 dp apart (q1-1) and the block
+ * is centred. Buttons are 64 dp with words (B31).
  */
 @Composable
 fun ControlWindow() {
@@ -81,7 +83,7 @@ fun ControlWindow() {
         if (Ui.page != Page.SETTINGS) Ui.exitConfirm = false
     }
 
-    Box(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 20.dp)) {
+    Box(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp)) {
         when (Ui.page) {
             Page.PLAY -> PlayPage(snap, settings, graph)
             Page.SETTINGS -> SettingsPage(settings, graph)
@@ -149,49 +151,53 @@ private fun PlayPage(snap: BenchSnap, settings: Settings, graph: Graph) {
     val answers = stringArrayResource(R.array.tip_answers)
     PageColumn {
         Header(stringResource(R.string.app_name), "play", settings, graph)
-        // the status sentence (what to do next), on a card
-        Box(Modifier.fillMaxWidth().heightIn(min = 72.dp).clip(RoundedCornerShape(22.dp)).background(KineticaColors.Card).padding(horizontal = 20.dp, vertical = 10.dp), contentAlignment = Alignment.CenterStart) {
-            val line = lineText(statusLine(snap)) + if (snap.slow) " · " + stringResource(R.string.line_slow) else ""
-            Txt(line, "play/status", style = PicoTheme.typography.titleMedium, color = KineticaColors.Ink, maxLines = 2)
-        }
-        // the three periods (same source as the brass plates, D38) and the gravity line
-        Txt(lex.periodsRow(snap), "play/periods", style = PicoTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), maxLines = 1)
-        // gravity: same as the 3D selector (◀ ▶ beside the planet on the right), here as a row (user 2026-11-13)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            SecondaryButton(stringResource(R.string.btn_planet_prev), "play/planet-prev", onClick = { flow.planetPrev() }, icon = R.drawable.ic_chevron_left, modifier = Modifier.width(128.dp))
-            Txt(stringResource(R.string.gravity_line, planet, lex.gLine(snap.planet)), "play/gravity", style = PicoTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
-                color = KineticaColors.Ink, maxLines = 2, modifier = Modifier.weight(1f), align = androidx.compose.ui.text.style.TextAlign.Center)
-            SecondaryButton(stringResource(R.string.btn_planet_next), "play/planet-next", onClick = { flow.planetNext() }, icon = R.drawable.ic_chevron_right, modifier = Modifier.width(128.dp))
-        }
-        // try this (content.tips): the question, or its answer for 4 s
-        Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).clip(RoundedCornerShape(18.dp)).background(KineticaColors.Card).padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-            val answered = snap.answerTip >= 0
-            Icon(painter = painterResource(R.drawable.ic_lightbulb), contentDescription = null, modifier = Modifier.size(24.dp), tint = KineticaColors.Secondary)
-            Spacer(Modifier.width(10.dp))
-            Column(Modifier.weight(1f)) {
-                Txt(stringResource(if (answered) R.string.tip_answer_label else R.string.tip_label), "play/tip-label", style = PicoTheme.typography.labelMedium, color = KineticaColors.Secondary)
-                val text = when {
-                    answered -> answers.getOrElse(snap.answerTip) { "" }
-                    snap.tipIndex >= 6 -> stringResource(R.string.tips_done)
-                    else -> questions.getOrElse(snap.tipIndex) { "" }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+            // left: what to do next, the periods (same source as the brass plates, D38), try this
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Box(Modifier.fillMaxWidth().heightIn(min = 72.dp).clip(RoundedCornerShape(22.dp)).background(KineticaColors.Card).padding(horizontal = 20.dp, vertical = 10.dp), contentAlignment = Alignment.CenterStart) {
+                    val line = lineText(statusLine(snap)) + if (snap.slow) " · " + stringResource(R.string.line_slow) else ""
+                    Txt(line, "play/status", style = PicoTheme.typography.titleMedium, color = KineticaColors.Ink, maxLines = 2)
                 }
-                Txt(text, "play/tip", style = PicoTheme.typography.bodyLarge, color = KineticaColors.Ink, maxLines = 2)
+                Txt(lex.periodsRow(snap), "play/periods", style = PicoTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold), maxLines = 1)
+                // try this (content.tips): the question, or its answer for 4 s
+                Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).clip(RoundedCornerShape(18.dp)).background(KineticaColors.Card).padding(horizontal = 16.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically) {
+                    val answered = snap.answerTip >= 0
+                    Icon(painter = painterResource(R.drawable.ic_lightbulb), contentDescription = null, modifier = Modifier.size(24.dp), tint = KineticaColors.Secondary)
+                    Spacer(Modifier.width(10.dp))
+                    Column(Modifier.weight(1f)) {
+                        Txt(stringResource(if (answered) R.string.tip_answer_label else R.string.tip_label), "play/tip-label", style = PicoTheme.typography.labelMedium, color = KineticaColors.Secondary)
+                        val text = when {
+                            answered -> answers.getOrElse(snap.answerTip) { "" }
+                            snap.tipIndex >= 6 -> stringResource(R.string.tips_done)
+                            else -> questions.getOrElse(snap.tipIndex) { "" }
+                        }
+                        Txt(text, "play/tip", style = PicoTheme.typography.bodyLarge, color = KineticaColors.Ink, maxLines = 2)
+                    }
+                }
+            }
+            // right: the main button (D43) [再放一次]; then [全停下] and slow motion; why a button is grey
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                PrimaryButton(stringResource(R.string.btn_replay), "play/replay", onClick = { flow.replay() }, enabled = snap.canReplay, icon = R.drawable.ic_replay, modifier = Modifier.fillMaxWidth())
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    SecondaryButton(stringResource(R.string.btn_stop), "play/stop", onClick = { flow.stopAll() }, enabled = snap.canStop, icon = R.drawable.ic_stop, modifier = Modifier.weight(1f))
+                    ToggleButton(stringResource(R.string.btn_slow), "play/slow", on = snap.slow, onClick = { flow.setSlow(!snap.slow) }, icon = R.drawable.ic_slow_motion, modifier = Modifier.weight(1.1f))
+                }
+                val why = when {
+                    !snap.canReplay -> stringResource(R.string.replay_disabled)
+                    !snap.canStop -> stringResource(R.string.stop_disabled)
+                    else -> ""
+                }
+                Box(Modifier.fillMaxWidth().heightIn(min = 24.dp), contentAlignment = Alignment.Center) {
+                    Txt(why, "play/why", style = PicoTheme.typography.bodyMedium, color = PicoTheme.colorScheme.labelSecondary, maxLines = 2)
+                }
             }
         }
-        // the main button (D43): [再放一次]; then [全停下] and slow motion
-        PrimaryButton(stringResource(R.string.btn_replay), "play/replay", onClick = { flow.replay() }, enabled = snap.canReplay, icon = R.drawable.ic_replay, modifier = Modifier.fillMaxWidth())
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            SecondaryButton(stringResource(R.string.btn_stop), "play/stop", onClick = { flow.stopAll() }, enabled = snap.canStop, icon = R.drawable.ic_stop, modifier = Modifier.weight(1f))
-            ToggleButton(stringResource(R.string.btn_slow), "play/slow", on = snap.slow, onClick = { flow.setSlow(!snap.slow) }, icon = R.drawable.ic_slow_motion, modifier = Modifier.weight(1.1f))
-        }
-        // why a button is grey (D43): one short line, always the same height
-        val why = when {
-            !snap.canReplay -> stringResource(R.string.replay_disabled)
-            !snap.canStop -> stringResource(R.string.stop_disabled)
-            else -> ""
-        }
-        Box(Modifier.fillMaxWidth().height(24.dp), contentAlignment = Alignment.Center) {
-            Txt(why, "play/why", style = PicoTheme.typography.bodyMedium, color = PicoTheme.colorScheme.labelSecondary)
+        // gravity: same as the 3D selector (◀ ▶ beside the planet on the right wing), here as a full-width row (user 2026-11-13)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp), verticalAlignment = Alignment.CenterVertically) {
+            SecondaryButton(stringResource(R.string.btn_planet_prev), "play/planet-prev", onClick = { flow.planetPrev() }, icon = R.drawable.ic_chevron_left, modifier = Modifier.width(160.dp))
+            Txt(stringResource(R.string.gravity_line, planet, lex.gLine(snap.planet)), "play/gravity", style = PicoTheme.typography.titleSmall.copy(fontWeight = FontWeight.SemiBold),
+                color = KineticaColors.Ink, maxLines = 2, modifier = Modifier.weight(1f), align = androidx.compose.ui.text.style.TextAlign.Center)
+            SecondaryButton(stringResource(R.string.btn_planet_next), "play/planet-next", onClick = { flow.planetNext() }, icon = R.drawable.ic_chevron_right, modifier = Modifier.width(160.dp))
         }
     }
 }
@@ -204,38 +210,44 @@ private fun SettingsPage(settings: Settings, graph: Graph) {
     val langs = stringArrayResource(R.array.language_values)
     PageColumn {
         Header(stringResource(R.string.tab_settings), "settings", settings, graph)
-        SecondaryButton(stringResource(R.string.settings_language, langs[settings.language.ordinal]), "settings/lang",
-            onClick = { graph.update { it.copy(language = it.language.next()) } }, icon = R.drawable.ic_language, modifier = Modifier.fillMaxWidth())
-        Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
-            Txt(stringResource(R.string.settings_volume), "settings/volume-label", style = PicoTheme.typography.labelLarge, modifier = Modifier.width(96.dp))
-            VolumeSlider(settings.volume, onChange = { v -> graph.update { it.copy(volume = v) } }, modifier = Modifier.weight(1f))
-        }
-        // D44: [叫回面前] always on the first screen; [恢复台子] beside it (C4)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            PrimaryButton(stringResource(R.string.btn_recall), "settings/recall", onClick = { graph.recallFront() }, icon = R.drawable.ic_recenter, modifier = Modifier.weight(1f))
-            SecondaryButton(stringResource(R.string.btn_restore), "settings/restore", onClick = { graph.flow.restoreDefault() }, icon = R.drawable.ic_restore, modifier = Modifier.weight(1f))
-        }
-        // D1: one line for moving / turning the bench
-        Txt(stringResource(R.string.move_hint), "settings/move-hint", style = PicoTheme.typography.bodyMedium, color = KineticaColors.Ink, maxLines = 2)
-        if (!Ui.exitConfirm) Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            Txt(stringResource(R.string.settings_about, BuildConfig.VERSION_NAME), "settings/about", style = PicoTheme.typography.bodySmall, color = PicoTheme.colorScheme.labelSecondary, maxLines = 2)
-            Txt(stringResource(R.string.footnote), "settings/footnote", style = PicoTheme.typography.bodySmall, color = PicoTheme.colorScheme.labelSecondary, maxLines = 3)
-        }
-        if (Ui.exitConfirm) {
-            // P3: the confirmation opens in place of the quit row (D26 / D52: words + action icon, no ✕)
-            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(KineticaColors.Card).padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Txt(stringResource(R.string.quit_q), "confirm/q", style = PicoTheme.typography.titleMedium, color = KineticaColors.Ink)
-                    Spacer(Modifier.width(12.dp))
-                    Txt(stringResource(R.string.quit_line), "confirm/line", style = PicoTheme.typography.bodySmall, color = KineticaColors.InkSecondary, maxLines = 2, modifier = Modifier.weight(1f))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                SecondaryButton(stringResource(R.string.settings_language, langs[settings.language.ordinal]), "settings/lang",
+                    onClick = { graph.update { it.copy(language = it.language.next()) } }, icon = R.drawable.ic_language, modifier = Modifier.fillMaxWidth())
+                Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Txt(stringResource(R.string.settings_volume), "settings/volume-label", style = PicoTheme.typography.labelLarge, modifier = Modifier.width(96.dp))
+                    VolumeSlider(settings.volume, onChange = { v -> graph.update { it.copy(volume = v) } }, modifier = Modifier.weight(1f))
                 }
+                // D1: one line for moving / turning the bench
+                Txt(stringResource(R.string.move_hint), "settings/move-hint", style = PicoTheme.typography.bodyMedium, color = KineticaColors.Ink, maxLines = 2)
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                // D44: [叫回面前] always on the first screen; [恢复台子] beside it (C4)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    SecondaryButton(stringResource(R.string.btn_cancel), "confirm/cancel", onClick = { Ui.exitConfirm = false }, icon = R.drawable.ic_back, modifier = Modifier.weight(1f))
-                    SecondaryButton(stringResource(R.string.btn_quit_go), "confirm/quit", danger = true, onClick = { exitApp(context, graph) }, icon = R.drawable.ic_exit, modifier = Modifier.weight(1f))
+                    PrimaryButton(stringResource(R.string.btn_recall), "settings/recall", onClick = { graph.recallFront() }, icon = R.drawable.ic_recenter, modifier = Modifier.weight(1f))
+                    SecondaryButton(stringResource(R.string.btn_restore), "settings/restore", onClick = { graph.flow.restoreDefault() }, icon = R.drawable.ic_restore, modifier = Modifier.weight(1f))
+                }
+                if (Ui.exitConfirm) {
+                    // P3: the confirmation opens in place of the quit row (D26 / D52: words + action icon, no ✕)
+                    Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(KineticaColors.Card).padding(horizontal = 16.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Txt(stringResource(R.string.quit_q), "confirm/q", style = PicoTheme.typography.titleMedium, color = KineticaColors.Ink)
+                            Spacer(Modifier.width(12.dp))
+                            Txt(stringResource(R.string.quit_line), "confirm/line", style = PicoTheme.typography.bodySmall, color = KineticaColors.InkSecondary, maxLines = 2, modifier = Modifier.weight(1f))
+                        }
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                            SecondaryButton(stringResource(R.string.btn_cancel), "confirm/cancel", onClick = { Ui.exitConfirm = false }, icon = R.drawable.ic_back, modifier = Modifier.weight(1f))
+                            SecondaryButton(stringResource(R.string.btn_quit_go), "confirm/quit", danger = true, onClick = { exitApp(context, graph) }, icon = R.drawable.ic_exit, modifier = Modifier.weight(1f))
+                        }
+                    }
+                } else {
+                    SecondaryButton(stringResource(R.string.btn_quit), "settings/quit", onClick = { Ui.exitConfirm = true; Log.i(TAG, "CONFIRM EXIT P3") }, icon = R.drawable.ic_exit, modifier = Modifier.fillMaxWidth(), danger = true)
                 }
             }
-        } else {
-            SecondaryButton(stringResource(R.string.btn_quit), "settings/quit", onClick = { Ui.exitConfirm = true; Log.i(TAG, "CONFIRM EXIT P3") }, icon = R.drawable.ic_exit, modifier = Modifier.fillMaxWidth(), danger = true)
+        }
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Txt(stringResource(R.string.settings_about, BuildConfig.VERSION_NAME), "settings/about", style = PicoTheme.typography.bodySmall, color = PicoTheme.colorScheme.labelSecondary, maxLines = 2)
+            Txt(stringResource(R.string.footnote), "settings/footnote", style = PicoTheme.typography.bodySmall, color = PicoTheme.colorScheme.labelSecondary, maxLines = 3)
         }
     }
 }

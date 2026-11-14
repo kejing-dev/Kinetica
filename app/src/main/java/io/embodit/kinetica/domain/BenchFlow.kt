@@ -237,7 +237,7 @@ class BenchFlow(
         }
         val big = baseBig(s)
         return when (s.type) {
-            Hanger.DOUBLE -> Readout(big.first, big.second, Small.SINCE, m.releasedAt?.let { (bench.time - it).toInt().toDouble() } ?: 0.0)
+            Hanger.DOUBLE -> Readout(big.first, big.second, Small.SINCE, m.since(bench.time)?.toInt()?.toDouble() ?: 0.0)
             else -> Readout(big.first, big.second, Small.IDEAL, round2(bench.idealPeriod(s) ?: 0.0))
         }
     }
@@ -247,13 +247,13 @@ class BenchFlow(
         return when (s.type) {
             // a count is really 0 before the first release: "0 flips" (q1-2 / D52)
             Hanger.DOUBLE -> Big.FLIPS to (if (m.releasedAt == null) 0.0 else m.flips.toDouble())
-            Hanger.SPRING -> if (m.releasedAt != null && m.swing) Big.SWINGING to 0.0 else m.period?.let { Big.PERIOD to round2(it) } ?: empty(m)
+            Hanger.SPRING -> if (m.releasedAt != null && m.swing && !m.frozen) Big.SWINGING to 0.0 else m.period?.let { Big.PERIOD to round2(it) } ?: empty(m)
             Hanger.ROD -> m.period?.let { Big.PERIOD to round2(it) } ?: empty(m)
         }
     }
 
     /** A period not measured yet: "Let go" before any release, "Timing" while the first periods run (periodMeterEmpty). */
-    private fun empty(m: Meter): Pair<Big, Double> = (if (m.releasedAt == null) Big.LET_GO else Big.TIMING) to 0.0
+    private fun empty(m: Meter): Pair<Big, Double> = (if (m.releasedAt == null || m.frozen) Big.LET_GO else Big.TIMING) to 0.0
 
     private fun round2(x: Double) = (x * 100).roundToInt() / 100.0
 

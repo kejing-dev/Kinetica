@@ -45,67 +45,85 @@ object Layout {
     const val EAR_Y0 = -0.28
     const val FOOT_Y = -0.31
 
-    // readout plates on the bevel (S-02): 0.11 x 0.045, centre (x, -0.275, ~+0.149), 3 mm proud
-    const val PLATE_W = 0.11
-    const val PLATE_H = 0.045
-    const val PLATE_Y = -0.275
-    const val PLATE_PX_W = 512
-    const val PLATE_PX_H = 210
+    // v0.1.2 (QA #2 q2-1, D14 default view): the control window the system opens straight ahead covers the middle of the
+    // view down to ~15° under the eye, so everything you read or tap sits on two walnut WINGS standing on the ears, beside
+    // the window (azimuth 24–38°) and 17–33° under the eye (below the window's bottom edge): the ▶ keys + readout plates on the left wing (one row per
+    // station, top = left station), the planet selector + KINETICA plaque on the right wing. Each wing yaws to face the
+    // design eye; its faces lean back WING_TILT_DEG. Wing frame: origin = board front-face centre, +X right, +Y up, +Z to the eye.
+    const val WING_X = 0.385
+    const val WING_Y = 0.004
+    const val WING_Z = 0.0
+    const val WING_W = 0.20
+    const val WING_H = 0.22
+    const val WING_T = 0.014
+    const val WING_TILT_DEG = 20.0
+    /** Rows of the left wing (station i): y in the wing frame. */
+    val ROW_Y = doubleArrayOf(0.075, 0.0, -0.075)
 
-    // tags on the crossbar (R2-02): 0.08 x 0.04, centre (x, +0.095, -0.05), face tilted up 20°
-    const val TAG_W = 0.08
-    const val TAG_H = 0.04
+    // readout plates (left wing, left part of each row): 0.115 x 0.048, 3 mm in front of a brass backing
+    const val PLATE_W = 0.115
+    const val PLATE_H = 0.048
+    const val PLATE_X = -0.035
+    const val PLATE_Z = 0.014
+    const val PLATE_PX_W = 512
+    const val PLATE_PX_H = 214
+
+    // tags on the crossbar (R2-02, q2-2: bigger, two full lines): 0.09 x 0.05, centre (x, +0.095, -0.05), face tilted up 20°;
+    // the canvas floats TAG_LIFT in front of the brass backing (no z-fighting at 25° side views)
+    const val TAG_W = 0.09
+    const val TAG_H = 0.05
     const val TAG_Y = 0.095
     const val TAG_Z = -0.05
     const val TAG_TILT_DEG = 20.0
+    const val TAG_LIFT = 0.0025
     const val TAG_HIT_W = 0.09
     const val TAG_HIT_H = 0.065
     const val TAG_HIT_D = 0.02
     const val TAG_PX_W = 512
-    const val TAG_PX_H = 256
+    const val TAG_PX_H = 284
 
-    // nameplate plaque (v0.1.1): stands on the left ear, leans back and turns toward the design eye so KINETICA reads at
-    // >= 0.5° (the old flat nameplate on the ear's front face was seen at 62° and its letters fell to ~0.25°)
-    val NAMEPLATE = Vec3(-0.36, -0.222, 0.10)
-    const val NAMEPLATE_W = 0.09
-    const val NAMEPLATE_H = 0.034
-    const val NAMEPLATE_TILT_DEG = 48.0
-    const val NAMEPLATE_YAW_DEG = 40.0
-    const val NAMEPLATE_PX_W = 512
-    const val NAMEPLATE_PX_H = 194
-    const val HIT_SQUARE = 0.065
-
-    // ▶ swing keys (D43, user 2026-11-13): one per station on the felt's front strip, key face leaning back 50° to the eye
-    const val KEY_Y = -0.231
-    const val KEY_Z = 0.105
-    const val KEY_W = 0.056
-    const val KEY_H = 0.040
-    const val KEY_TILT_DEG = 50.0
-    const val KEY_HIT_W = 0.060
-    const val KEY_HIT_H = 0.046
+    // ▶ swing keys (D43): left wing, right part of each row (toward the hangers); two lines: ▶ word / hanger name
+    const val KEY_X = 0.064
+    const val KEY_Z = 0.026
+    const val KEY_W = 0.060
+    const val KEY_H = 0.052
+    const val KEY_HIT_W = 0.064
+    const val KEY_HIT_H = 0.056
     const val KEY_HIT_D = 0.030
     const val KEY_PX_W = 512
-    const val KEY_PX_H = 366
+    const val KEY_PX_H = 444
 
-    // planet selector (D13, user 2026-11-13): a walnut shelf on the right ear turned toward the eye; the current planet
-    // in the middle (Ø 6.4 cm globe), ◀ ▶ keys on both sides, name + g on a brass label in front, four dots for the order.
-    val SEL = Vec3(0.40, -0.25, 0.07)
-    const val SEL_YAW_DEG = -40.0
-    val SEL_GLOBE = Vec3(0.0, 0.065, -0.005)
+    // right wing: planet selector (globe between ◀ ▶ keys on a ledge), the name + g label, the KINETICA plaque under it
+    val SEL_GLOBE = Vec3(0.0, 0.052, 0.045)
     const val SEL_GLOBE_D = 0.064
-    val SEL_PREV = Vec3(-0.072, 0.045, 0.010)
-    val SEL_NEXT = Vec3(0.072, 0.045, 0.010)
+    val SEL_PREV = Vec3(-0.072, 0.052, 0.022)
+    val SEL_NEXT = Vec3(0.072, 0.052, 0.022)
     const val SEL_KEY_D = 0.046
-    const val SEL_KEY_TILT_DEG = 38.0
-    val SEL_LABEL = Vec3(0.0, 0.026, 0.042)
-    const val SEL_LABEL_W = 0.12
-    const val SEL_LABEL_H = 0.040
-    const val SEL_LABEL_TILT_DEG = 46.0
+    val SEL_LABEL = Vec3(0.0, -0.037, 0.014)
+    const val SEL_LABEL_W = 0.13
+    const val SEL_LABEL_H = 0.042
     const val SEL_LABEL_PX_W = 512
-    const val SEL_LABEL_PX_H = 171
+    const val SEL_LABEL_PX_H = 165
+    val NAMEPLATE_L = Vec3(0.0, -0.085, 0.014)
+    const val NAMEPLATE_W = 0.10
+    const val NAMEPLATE_H = 0.036
+    const val NAMEPLATE_PX_W = 512
+    const val NAMEPLATE_PX_H = 184
+    const val HIT_SQUARE = 0.065
+    /** The「摇杆左右转动」hint card: under the right wing (wing frame), clear of the window. */
+    val HINT_L = Vec3(0.0, -WING_H / 2 - 0.025, 0.012)
 
-    /** Group frame (selector) -> bench frame. */
-    fun sel(p: Vec3): Vec3 = SEL + rotY(p, Math.toRadians(SEL_YAW_DEG))
+    /** Wing centre (bench frame). */
+    fun wingCentre(right: Boolean) = Vec3(if (right) WING_X else -WING_X, WING_Y, WING_Z)
+    /** Wing yaw: +Z of the wing points (horizontally) at the design eye. */
+    fun wingYaw(right: Boolean): Double { val c = wingCentre(right); return kotlin.math.atan2(DESIGN_EYE.x - c.x, DESIGN_EYE.z - c.z) }
+    fun wingYawDeg(right: Boolean) = Math.toDegrees(wingYaw(right))
+    /** Wing frame -> bench frame. */
+    fun wing(right: Boolean, p: Vec3): Vec3 = wingCentre(right) + rotY(p, wingYaw(right))
+    /** Right wing (selector group) -> bench frame. */
+    fun sel(p: Vec3): Vec3 = wing(true, p)
+    val SEL: Vec3 get() = wingCentre(true)
+    val SEL_YAW_DEG: Double get() = wingYawDeg(true)
 
     fun rotY(v: Vec3, yaw: Double): Vec3 { val c = cos(yaw); val s = sin(yaw); return Vec3(v.x * c + v.z * s, v.y, -v.x * s + v.z * c) }
 
@@ -115,29 +133,32 @@ object Layout {
         return Face(name, c, rotY(Vec3(1.0, 0.0, 0.0), y), rotY(Vec3(0.0, cos(t), -sin(t)), y), w, h)
     }
 
-    fun keyCentre(i: Int) = Vec3(BenchConfig.PIVOT_X[i], KEY_Y, KEY_Z)
-    fun keyFace(i: Int) = faceAt("key$i", keyCentre(i), 0.0, KEY_TILT_DEG, KEY_W, KEY_H)
-    fun selLabelFace() = faceAt("planetLabel", sel(SEL_LABEL), SEL_YAW_DEG, SEL_LABEL_TILT_DEG, SEL_LABEL_W, SEL_LABEL_H)
-    fun selKeyFace(next: Boolean) = faceAt(if (next) "planetNext" else "planetPrev", sel(if (next) SEL_NEXT else SEL_PREV), SEL_YAW_DEG, SEL_KEY_TILT_DEG, SEL_KEY_D, SEL_KEY_D)
+    /** Key / plate centres in the left wing frame and bench frame. */
+    fun keyLocal(i: Int) = Vec3(KEY_X, ROW_Y[i], KEY_Z)
+    fun keyCentre(i: Int) = wing(false, keyLocal(i))
+    fun keyFace(i: Int) = faceAt("key$i", keyCentre(i), wingYawDeg(false), WING_TILT_DEG, KEY_W, KEY_H)
+    fun plateLocal(i: Int) = Vec3(PLATE_X, ROW_Y[i], PLATE_Z)
+    fun plateCentre(i: Int) = wing(false, plateLocal(i))
+    fun plateFace(i: Int) = faceAt("plate$i", plateCentre(i), wingYawDeg(false), WING_TILT_DEG, PLATE_W, PLATE_H)
+    fun selLabelFace() = faceAt("planetLabel", sel(SEL_LABEL), SEL_YAW_DEG, WING_TILT_DEG, SEL_LABEL_W, SEL_LABEL_H)
+    fun selKeyFace(next: Boolean) = faceAt(if (next) "planetNext" else "planetPrev", sel(if (next) SEL_NEXT else SEL_PREV), SEL_YAW_DEG, WING_TILT_DEG, SEL_KEY_D, SEL_KEY_D)
+    val NAMEPLATE: Vec3 get() = sel(NAMEPLATE_L)
+    fun nameplateFace() = faceAt("nameplate", NAMEPLATE, SEL_YAW_DEG, WING_TILT_DEG, NAMEPLATE_W, NAMEPLATE_H)
 
-    /** Capsules the bobs bounce off (and a held bob is pushed out of): the swing keys and the selector. (a, b, radius). */
-    fun obstacleCapsules(): List<Triple<Vec3, Vec3, Double>> =
-        (0..2).map { i -> Triple(keyCentre(i) + Vec3(-0.022, 0.0, 0.0), keyCentre(i) + Vec3(0.022, 0.0, 0.0), 0.02) } +
-            listOf(
-                Triple(sel(SEL_PREV), sel(SEL_NEXT), 0.028),
-                Triple(sel(SEL_GLOBE), sel(SEL_GLOBE), SEL_GLOBE_D / 2 + 0.004),
-            )
-
-    fun plateCentre(i: Int): Vec3 {
-        val t = Math.toRadians(BEVEL_DEG)
-        val zMid = BASE_Z - (PLATE_Y - BASE_Y0) * kotlin.math.tan(t)
-        val n = Vec3(0.0, sin(t), cos(t))
-        return Vec3(BenchConfig.PIVOT_X[i], PLATE_Y, zMid) + n * 0.003
-    }
-
-    fun plateFace(i: Int): Face {
-        val t = Math.toRadians(BEVEL_DEG)
-        return Face("plate$i", plateCentre(i), Vec3(1.0, 0.0, 0.0), Vec3(0.0, cos(t), -sin(t)), PLATE_W, PLATE_H)
+    /**
+     * Capsules the bobs bounce off (and a held bob is pushed out of): the wing boards, the ▶ keys and the globe. A capsule
+     * that passes within 6 cm of a post is left out: there the post already stops a bob (post + bob radius ~3.2 cm), and two
+     * obstacles that close would squeeze a bob between them (BenchPhysicsTest.randomStartsNeverPenetrateOrLeave).
+     */
+    fun obstacleCapsules(): List<Triple<Vec3, Vec3, Double>> {
+        val all = listOf(false, true).flatMap { r ->
+            listOf(-0.09, -0.03, 0.03, 0.09).map { x -> Triple(wing(r, Vec3(x, -WING_H / 2, -WING_T / 2)), wing(r, Vec3(x, WING_H / 2, -WING_T / 2)), 0.012) }
+        } + (0..2).map { i -> Triple(keyCentre(i), keyCentre(i), 0.03) } + listOf(Triple(sel(SEL_GLOBE), sel(SEL_GLOBE), SEL_GLOBE_D / 2 + 0.004))
+        fun nearPost(a: Vec3, b: Vec3): Boolean = listOf(-1.0, 1.0).any { sx ->
+            val px = sx * BenchConfig.POST_X; val pz = BenchConfig.POST_Z
+            (0..10).any { k -> val p = a + (b - a) * (k / 10.0); kotlin.math.hypot(p.x - px, p.z - pz) < 0.06 && p.y < BenchConfig.BAR_Y + 0.03 }
+        }
+        return all.filter { (a, b, _) -> !nearPost(a, b) }
     }
 
     fun tagCentre(i: Int) = Vec3(BenchConfig.PIVOT_X[i], TAG_Y, TAG_Z)
@@ -147,17 +168,15 @@ object Layout {
         return Face("tag$i", tagCentre(i), Vec3(1.0, 0.0, 0.0), Vec3(0.0, cos(t), -sin(t)), TAG_W, TAG_H)
     }
 
-    fun nameplateFace() = faceAt("nameplate", NAMEPLATE, NAMEPLATE_YAW_DEG, NAMEPLATE_TILT_DEG, NAMEPLATE_W, NAMEPLATE_H)
-
     /**
-     * Full Space (container.placement): the bench is placed 0.50 m ahead of the eye with its origin 0.34 m below it
-     * (StagePose.DROP_M, DV-K8), so the design eye is (0, +0.34, +0.50) in bench space. Leaning / sitting lower / standing up around it, and the emulator's
-     * eye after a cold start (the same rule, measured: ui-audit).
+     * Full Space (container.placement, v0.1.2): the bench is placed 0.66 m ahead of the eye with its origin 0.35 m below
+     * it (StagePose), so the design eye is (0, +0.35, +0.66) in bench space: the hangers sit under the window (tag tops
+     * 17° down, bobs <= 38°), the wings beside it. Leaning / sitting lower / standing up around it.
      */
-    val DESIGN_EYE = Vec3(0.0, 0.34, 0.50)
+    val DESIGN_EYE = Vec3(0.0, 0.35, 0.66)
     val EYES: List<Pair<String, Vec3>> = listOf(
-        "design" to DESIGN_EYE, "lean-L" to Vec3(-0.15, 0.34, 0.50), "lean-R" to Vec3(0.15, 0.34, 0.50),
-        "lower" to Vec3(0.0, 0.26, 0.50), "stand" to Vec3(0.0, 0.48, 0.55), "back" to Vec3(0.0, 0.38, 0.75),
+        "design" to DESIGN_EYE, "lean-L" to Vec3(-0.15, 0.35, 0.66), "lean-R" to Vec3(0.15, 0.35, 0.66),
+        "lower" to Vec3(0.0, 0.27, 0.66), "stand" to Vec3(0.0, 0.49, 0.70), "back" to Vec3(0.0, 0.39, 0.85),
     )
 
     /** Cap height (metres) a label needs on its face to be >= [deg] tall from [eye] (distance and foreshortening). */
@@ -165,6 +184,12 @@ object Layout {
         val d = eye - face.centre
         val cosA = (d.normalized()).dot(face.normal).coerceIn(0.05, 1.0)
         return d.len() * kotlin.math.tan(Math.toRadians(deg)) / cosA
+    }
+
+    /** Axis-aligned box around a wing board (+ its ledge), bench frame. */
+    fun wingBox(right: Boolean): Box3 {
+        val pts = listOf(-1.0, 1.0).flatMap { a -> listOf(-1.0, 1.0).flatMap { b -> listOf(-WING_T, 0.0).map { z -> wing(right, Vec3(a * WING_W / 2, b * WING_H / 2, z)) } } }
+        return Box3(Vec3(pts.minOf { it.x }, pts.minOf { it.y }, pts.minOf { it.z }), Vec3(pts.maxOf { it.x }, pts.maxOf { it.y }, pts.maxOf { it.z }))
     }
 
     /** The fixed parts of the bench as boxes (occlusion tests). */
@@ -175,6 +200,7 @@ object Layout {
             "earL" to Box3.of(-EAR_X1, -EAR_X0, EAR_Y0, BASE_Y1, -BASE_Z, BASE_Z),
             "earR" to Box3.of(EAR_X0, EAR_X1, EAR_Y0, BASE_Y1, -BASE_Z, BASE_Z),
             "globe" to Box3.around(sel(SEL_GLOBE), SEL_GLOBE_D / 2),
+            "wingL" to wingBox(false), "wingR" to wingBox(true),
             "postL" to Box3.of(-c.POST_X - c.POST_R, -c.POST_X + c.POST_R, c.POST_BOTTOM, c.BAR_Y, c.POST_Z - c.POST_R, c.POST_Z + c.POST_R),
             "postR" to Box3.of(c.POST_X - c.POST_R, c.POST_X + c.POST_R, c.POST_BOTTOM, c.BAR_Y, c.POST_Z - c.POST_R, c.POST_Z + c.POST_R),
             "bar" to Box3.of(-c.POST_X, c.POST_X, c.BAR_Y - c.BAR_R, c.BAR_Y + c.BAR_R, c.BAR_Z - c.BAR_R, c.BAR_Z + c.BAR_R),

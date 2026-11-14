@@ -21,12 +21,14 @@ data class BenchPose(val origin: Vec3, val yaw: Double) {
 
 object StagePose {
     /**
-     * Design container.placement.default: hanging plane 0.50 m ahead of the eye; bench origin 0.25 m below it in the design,
-     * 0.34 m here (DV-K8: the system window measured 1 dp ≈ 1.74 mm at 1.75 m, so its bottom + system controls reach
-     * ~20° below the eye; at 0.25 m the tags (−12.6°) sat behind the window's lower part; at 0.34 m the tag tops are at −22°).
+     * Design container.placement.default: hanging plane 0.50 m ahead of the eye, origin 0.25 m below it. v0.1.2 (QA #2
+     * q2-1, D14 default view): the control window the system opens ahead (800 x 420 dp ≈ 1.39 x 0.73 m at 1.75 m, 1 dp ≈
+     * 1.74 mm measured) covers the view down to ~15° under the eye incl. its system controls, and the emulator view ends
+     * ~40° under the eye. 0.66 m ahead and 0.35 m down puts the tag tops at −17° and the resting bobs at <= −38°, the wings
+     * (keys, readouts, selector, plaque) beside the window at −8…−22° (deviation DV-K13; DV-K8 / DV-K9 withdrawn).
      */
-    const val AHEAD_M = 0.50
-    const val DROP_M = 0.34
+    const val AHEAD_M = 0.66
+    const val DROP_M = 0.35
     /** Felt height window while moving the bench: felt = E − 0.85 … E − 0.20 (felt is 0.25 m under the origin). */
     const val FELT_LOW = 0.85
     const val FELT_HIGH = 0.20

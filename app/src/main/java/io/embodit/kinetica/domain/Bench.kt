@@ -116,13 +116,25 @@ class Meter {
     var flips = 0
     var prevAng: Double? = null
     var releasedAt: Double? = null
+    /**
+     * q2-3 / q2-4 (S4): physics time the station was told to stop (its ■ key, [全停下]) or came to rest. From then on the
+     * meter is frozen: no crossings, no flips, the "since release" clock stops; the last full period stays on the plate.
+     */
+    var stoppedAt: Double? = null
+    /** Crossings needed before a period shows: 2 normally, 3 right after a planet change (the first bounce is half a swing). */
+    var minCrosses = 2
 
     fun reset() {
-        crosses.clear(); prev = null; hasAxis = false; vA = 0.0; hA = 0.0; swing = false; flips = 0; prevAng = null; releasedAt = null
+        crosses.clear(); prev = null; hasAxis = false; vA = 0.0; hA = 0.0; swing = false; flips = 0; prevAng = null; releasedAt = null; stoppedAt = null; minCrosses = 2
     }
 
+    val frozen: Boolean get() = stoppedAt != null
+
+    /** Seconds since the release, stopped at [stoppedAt] (q2-4). */
+    fun since(now: Double): Double? = releasedAt?.let { (stoppedAt ?: now) - it }
+
     /** Last 2 periods averaged (one period as soon as there are two crossings); null before that. */
-    val period: Double? get() = if (crosses.size >= 2) (crosses.last() - crosses.first()) / (crosses.size - 1) else null
+    val period: Double? get() = if (crosses.size >= minCrosses) (crosses.last() - crosses.first()) / (crosses.size - 1) else null
 }
 
 class Station(val index: Int, type: Hanger, size: Int, mats: List<BobMat>) {
@@ -251,6 +263,8 @@ class Bench(defaults: List<Triple<Hanger, Int, List<BobMat>>> = DEFAULT) {
         collide()
         for (s in stations) meterStep(s)
         time += h
+        // q2-4: a station that came to rest (after its ■ settle or by itself) stops its clock too
+        for (s in stations) if (s.meter.releasedAt != null && !s.meter.frozen && stationSettle[s.index] <= 0 && settleLeft <= 0 && s.bodies.none { it.held } && !stationMoving(s.index, 0.0005)) s.meter.stoppedAt = time
         for (s in stations) if (stationSettle[s.index] > 0) {
             stationSettle[s.index] -= h
             if (stationSettle[s.index] <= 0 && settleExtra[s.index] < 15 && s.bodies.indices.any { k -> s.bodies[k].p.dist(eqPos(s, k)) > 0.004 }) {
@@ -544,14 +558,14 @@ class Bench(defaults: List<Triple<Hanger, Int, List<BobMat>>> = DEFAULT) {
     }
 
     private fun hit(s: Station, impulse: Double) {
-        if (impulse > BenchConfig.IMPULSE_DASH) { s.meter.crosses.clear(); s.meter.prev = null }
+        if (impulse > BenchConfig.IMPULSE_DASH && !s.meter.frozen) { s.meter.crosses.clear(); s.meter.prev = null }
     }
 
     // ------------------------------------------------------------------ period meter
 
     private fun meterStep(s: Station) {
         val m = s.meter
-        if (m.releasedAt == null) return
+        if (m.releasedAt == null || m.frozen) return
         val t = time + BenchConfig.H
         when (s.type) {
             Hanger.ROD -> {
@@ -807,7 +821,8 @@ class Bench(defaults: List<Triple<Hanger, Int, List<BobMat>>> = DEFAULT) {
     /** Changes g. Moving bobs keep moving; periods restart. A resting spring then bounces a little (it is off its new rest). */
     fun changePlanet(p: Planet) {
         planet = p
-        for (s in stations) { s.meter.crosses.clear(); s.meter.prev = null }
+        // a period measured under the old g is no longer this planet's: clear it (a stopped station then reads "let go")
+        for (s in stations) { s.meter.crosses.clear(); s.meter.prev = null; s.meter.minCrosses = 3 }
     }
 
     /** Station [si] is moving or off its rest (its ▶ key then reads ■ Stop). */
@@ -851,6 +866,7 @@ class Bench(defaults: List<Triple<Hanger, Int, List<BobMat>>> = DEFAULT) {
     /** The station's ■ key: about one second of damping back to rest for this station only. */
     fun stopStation(si: Int): Boolean {
         if (!stationMoving(si)) return false
+        freezeMeter(stations[si])
         stationSettle[si] = BenchConfig.SETTLE_S
         settleExtra[si] = 0
         return true
@@ -859,9 +875,13 @@ class Bench(defaults: List<Triple<Hanger, Int, List<BobMat>>> = DEFAULT) {
     /** [全停下]: about one second of critical-ish damping back to rest, no teleport. */
     fun stopAll(): Boolean {
         if (!anyMoving() && !anyDisplaced()) return false
+        for (s in stations) freezeMeter(s)
         settleLeft = BenchConfig.SETTLE_S
         return true
     }
+
+    /** q2-3: stopping starts now, so the measurement ends now (the damped second is not a period). */
+    private fun freezeMeter(s: Station) { if (s.meter.releasedAt != null && !s.meter.frozen) s.meter.stoppedAt = time }
 
     fun canReplay(): Boolean = stations.any { it.rec != null }
 

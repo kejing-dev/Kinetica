@@ -63,7 +63,7 @@ internal fun v3(v: Vec3) = Vector3(v.x.toFloat(), v.y.toFloat(), v.z.toFloat())
 /** The GLB templates (tools/build_bench.py, tools/build_planets.py). */
 internal class Models(
     val base: Entity, val frame: Entity, val rod: Entity, val hinge: Entity, val bobs: Map<BobMat, Entity>,
-    val plaque: Entity, val key: Entity, val selKey: Entity, val selector: Entity, val planets: Map<Planet, Entity>,
+    val plaque: Entity, val key: Entity, val selKey: Entity, val selector: Entity, val wingL: Entity, val planets: Map<Planet, Entity>,
 )
 
 /** SDK resources made at start (on Dispatchers.IO: creating a resource waits on the renderer). */
@@ -232,6 +232,7 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
     private var globe: Entity? = null
     private val globeModels = HashMap<Planet, Entity>()
     private val selKeys = HashMap<String, Entity>()
+    private val arrowMats = HashMap<Boolean, UnlitMaterial>()
     private val selPressAt = HashMap<String, Long>()
     private var coachRing: ModelEntity? = null
     private var rim: ModelEntity? = null
@@ -310,6 +311,8 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
 
     private fun rotX(deg: Double) = Quat(Vector3(1f, 0f, 0f), Math.toRadians(deg).toFloat())
     private fun rotY(rad: Double) = Quat(Vector3(0f, 1f, 0f), rad.toFloat())
+    /** A wing face: the wing's yaw toward the eye, leaning back WING_TILT_DEG (q2-1 / q2-5). */
+    private fun wingRot(right: Boolean) = rotY(Layout.wingYaw(right)).times(rotX(-Layout.WING_TILT_DEG))
 
     private fun texMat(r: SceneResources): UnlitMaterial =
         UnlitMaterial.create(BlendingMode.OPAQUE).apply { setBaseColor(Color4(1f, 1f, 1f, 1f)); setApplyToneMapping(false) }.also { r.keep(it) }
@@ -367,27 +370,29 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
             // tag
             val tm = texMat(r); tagMats += tm
             val tag = ModelEntity(r.tagPlane, tm).apply { setName("tag:$si") }
-            place(tag, Layout.tagCentre(si)); tag.transform().setQuaternion(rotX(-Layout.TAG_TILT_DEG))
+            place(tag, Layout.tagCentre(si) + Layout.tagFace(si).normal * Layout.TAG_LIFT); tag.transform().setQuaternion(rotX(-Layout.TAG_TILT_DEG)) // q2-2: canvas off the backing
             GazeTargets.install(tag, r.tagShape, r.physics)
             root.addChild(tag)
             // readout plate (no hits)
             val pm = texMat(r); plateMats += pm
             val plate = ModelEntity(r.platePlane, pm).apply { setName("plate:$si") }
-            place(plate, Layout.plateCentre(si)); plate.transform().setQuaternion(rotX(-Layout.BEVEL_DEG))
+            place(plate, Layout.plateCentre(si)); plate.transform().setQuaternion(wingRot(false))
             root.addChild(plate)
-            // ▶ swing key (D43): holder at the face centre, leaning back 50°; cap model + canvas face
+            // ▶ swing key (D43): holder at the face centre on the left wing (q2-1), facing the eye; cap model + canvas face
             val key = Entity().apply { setName(BenchNames.go(si)) }
-            place(key, Layout.keyCentre(si)); key.transform().setQuaternion(rotX(-Layout.KEY_TILT_DEG))
+            place(key, Layout.keyCentre(si)); key.transform().setQuaternion(wingRot(false))
             key.addChild(clone(m.key).apply { setName("keycap:$si") })
             val km = texMat(r); keyMats += km
             key.addChild(ModelEntity(r.keyPlane, km).apply { setName("keyface:$si"); transform().setPosition(Vector3(0f, 0f, 0.0008f)) })
             GazeTargets.install(key, r.keyShape, r.physics)
             root.addChild(key); keys += key
         }
-        // nameplate plaque (tap = reopen the control window)
+        // left wing board (q2-1: keys + plates beside the window, in the level default view)
+        root.addChild(clone(m.wingL).apply { setName("wingL"); place(this, Layout.wingCentre(false)); transform().setQuaternion(rotY(Layout.wingYaw(false))) })
+        // nameplate plaque on the right wing under the selector (tap = reopen the control window)
         val np = Entity().apply { setName(BenchNames.NAMEPLATE) }
         place(np, Layout.NAMEPLATE)
-        np.transform().setQuaternion(rotY(Math.toRadians(Layout.NAMEPLATE_YAW_DEG)).times(rotX(-Layout.NAMEPLATE_TILT_DEG)))
+        np.transform().setQuaternion(wingRot(true))
         np.addChild(clone(m.plaque).apply { setName("plaqueModel") })
         nameplateMat = texMat(r)
         np.addChild(ModelEntity(r.nameplatePlane, nameplateMat!!).apply { setName("nameplateFace"); transform().setPosition(Vector3(0f, 0f, 0.001f)) })
@@ -410,22 +415,22 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
         for (next in listOf(false, true)) {
             val name = if (next) BenchNames.PLANET_NEXT else BenchNames.PLANET_PREV
             val k = Entity().apply { setName(name) }
-            place(k, if (next) Layout.SEL_NEXT else Layout.SEL_PREV); k.transform().setQuaternion(rotX(-Layout.SEL_KEY_TILT_DEG))
+            place(k, if (next) Layout.SEL_NEXT else Layout.SEL_PREV); k.transform().setQuaternion(rotX(-Layout.WING_TILT_DEG))
             k.addChild(clone(m.selKey).apply { setName("selkey:$next") })
             val am = texMat(r)
             k.addChild(ModelEntity(r.arrowPlane, am).apply { setName("arrow:$next"); transform().setPosition(Vector3(0f, 0f, 0.0008f)) })
-            texture("arrow$next", "arrow|${BenchTextures.testF}", am) { BenchTextures.arrow(next) }
+            arrowMats[next] = am
             GazeTargets.install(k, r.selKeyShape, r.physics)
             sel.addChild(k); selKeys[name] = k
         }
         labelMat = texMat(r)
         val label = ModelEntity(r.labelPlane, labelMat!!).apply { setName("planetLabel") }
-        place(label, Layout.SEL_LABEL + Vec3(0.0, 0.0, 0.001)); label.transform().setQuaternion(rotX(-Layout.SEL_LABEL_TILT_DEG))
+        place(label, Layout.SEL_LABEL + Vec3(0.0, 0.0, 0.001)); label.transform().setQuaternion(rotX(-Layout.WING_TILT_DEG))
         sel.addChild(label)
         // turn hint (shown while a controller ray is on the base or the bench is held)
         hintMat = texMat(r)
         turnHint = ModelEntity(r.hintPlane, hintMat!!).apply { setName("turnHint"); enabled = false }
-        place(turnHint!!, Vec3(-0.22, -0.195, 0.165)); turnHint!!.transform().setQuaternion(rotX(-40.0))
+        place(turnHint!!, Layout.sel(Layout.HINT_L)); turnHint!!.transform().setQuaternion(wingRot(true))
         root.addChild(turnHint!!)
         // marks
         coachRing = ModelEntity(r.ringPlane, r.ringMat).apply { setName("coachRing"); enabled = false; root.addChild(this) }
@@ -481,8 +486,11 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
             val big = lex.big(st.readout); val small = lex.small(st.readout)
             texture("plate$i", "$big|$small|$f", plateMats[i]) { BenchTextures.plate(big, small, i) }
             val word = if (st.moving) lex.swingStop else lex.swingGo
-            texture("key$i", "$word|${st.moving}|$f", keyMats[i]) { BenchTextures.key(word, st.moving, i) }
+            val hanger = lex.hangers[st.type.ordinal]
+            texture("key$i", "$word|$hanger|${st.moving}|$f", keyMats[i]) { BenchTextures.key(word, hanger, st.moving, i) }
         }
+        // q2-5: the ◀ ▶ faces take part in the F↑ orientation test too
+        for ((next, am) in arrowMats) texture("arrow$next", "arrow|$f", am) { BenchTextures.arrow(next) }
         nameplateMat?.let { m -> texture("nameplate", "KINETICA|$f", m) { BenchTextures.nameplate("KINETICA") } }
         labelMat?.let { m ->
             val p = s.planet
@@ -807,7 +815,7 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
             val at = selPressAt[name] ?: -1L
             val t = now - at
             val dip = if (at >= 0 && t < 160) 0.004 * kotlin.math.sin(Math.PI * t / 160.0) else 0.0
-            val tl = Math.toRadians(Layout.SEL_KEY_TILT_DEG)
+            val tl = Math.toRadians(Layout.WING_TILT_DEG)
             val n = Vec3(0.0, kotlin.math.sin(tl), kotlin.math.cos(tl))
             place(k, (if (name == BenchNames.PLANET_NEXT) Layout.SEL_NEXT else Layout.SEL_PREV) - n * dip)
         }

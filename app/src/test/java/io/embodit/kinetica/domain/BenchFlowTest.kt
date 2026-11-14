@@ -329,4 +329,85 @@ class BenchFlowTest {
         f.dragBob(0.08f, 0.05f, 0f); f.releaseBob(); assertEquals(Line.S3, statusLine(f.snap.value))
         f.stopAll(); assertEquals(Line.S4, statusLine(f.snap.value))
     }
+
+    // ------------------------------------------------------------------ q2-3 / q2-4 (QA #2): stopping freezes the meter
+
+    private fun ideal(f: BenchFlow, si: Int) = f.bench.idealPeriod(f.bench.stations[si])!!
+
+    /** q2-3: ■ on a swinging rod / spring: the plate keeps the last full period (within 3 % of ideal) through and after the damped second. */
+    @Test fun stopKeyKeepsTheLastFullPeriod() {
+        for (planet in Planet.entries) for (si in 0..1) {
+            val f = flow(); f.setPlanet(planet); f.stopAll(); f.play(6.0) // the spring bounces onto its new rest first
+            f.tapSwing(si); f.play(4.0)
+            val before = f.readout(f.bench.stations[si])
+            assertEquals("$planet $si", Big.PERIOD, before.big)
+            f.tapSwing(si) // ■ Stop
+            for (k in 0 until 6) {
+                f.play(0.5)
+                val r = f.readout(f.bench.stations[si])
+                assertEquals("$planet station $si after ${(k + 1) * 0.5} s", Big.PERIOD, r.big)
+                assertEquals("$planet station $si frozen", before.bigValue, r.bigValue, 1e-9)
+                assertTrue("$planet station $si ${r.bigValue} vs ${ideal(f, si)}", kotlin.math.abs(r.bigValue - ideal(f, si)) / ideal(f, si) <= 0.03)
+            }
+            f.play(4.0)
+            assertFalse("$planet $si still moving: ${f.bench.stations[si].bodies[0].v} ${f.bench.stations[si].bodies[0].p}", f.bench.stationMoving(si))
+        }
+    }
+
+    /** q2-3: [全停下] does the same for every station. */
+    @Test fun stopAllKeepsEveryLastFullPeriod() {
+        val f = flow(); f.setPlanet(Planet.JUPITER); f.stopAll(); f.play(6.0)
+        f.tapSwing(0); f.play(0.2); f.tapSwing(1); f.play(4.0)
+        val before = (0..1).map { f.readout(f.bench.stations[it]).bigValue }
+        f.stopAll(); f.play(3.0)
+        for (si in 0..1) {
+            val r = f.readout(f.bench.stations[si])
+            assertEquals("station $si ${f.bench.stations[si].meter.crosses} ${f.bench.stations[si].meter.releasedAt}", Big.PERIOD, r.big)
+            assertEquals(before[si], r.bigValue, 1e-9)
+            assertTrue("$si ${r.bigValue}", kotlin.math.abs(r.bigValue - ideal(f, si)) / ideal(f, si) <= 0.03)
+        }
+    }
+
+    /** q2-4: the double's "released N s ago" stops counting at ■ / [全停下] and stays put. */
+    @Test fun doubleSinceClockStopsAtStop() {
+        for (useAll in listOf(false, true)) {
+            val f = flow()
+            f.tapSwing(2); f.play(5.0)
+            if (useAll) f.stopAll() else f.tapSwing(2)
+            val at = f.readout(f.bench.stations[2])
+            assertEquals(Small.SINCE, at.small)
+            assertTrue("since ${at.smallValue}", at.smallValue in 4.0..5.0)
+            val flips = at.bigValue
+            f.play(30.0)
+            val later = f.readout(f.bench.stations[2])
+            assertEquals("useAll=$useAll", at.smallValue, later.smallValue, 1e-9)
+            assertEquals(flips, later.bigValue, 1e-9)
+            // a new ▶ starts a new count
+            f.tapSwing(2); f.play(2.0)
+            assertTrue(f.readout(f.bench.stations[2]).smallValue in 1.0..2.0)
+        }
+    }
+
+    /** QA #2 known issue: a planet change does not flash a short spring period from the first half bounce. */
+    @Test fun planetChangeNeedsTwoFullSpringPeriods() {
+        val f = flow()
+        f.tapSwing(1); f.play(3.0)
+        for (p in listOf(Planet.MOON, Planet.MARS, Planet.JUPITER)) {
+            f.setPlanet(p)
+            repeat(60) {
+                f.play(0.05)
+                val r = f.readout(f.bench.stations[1])
+                if (r.big == Big.PERIOD) assertTrue("$p ${r.bigValue}", kotlin.math.abs(r.bigValue - ideal(f, 1)) / ideal(f, 1) <= 0.03)
+            }
+        }
+    }
+
+    /** A stopped station's kept period belongs to its planet: changing planet clears it (no Earth period under Jupiter's ideal). */
+    @Test fun planetChangeClearsAFrozenPeriod() {
+        val f = flow()
+        f.tapSwing(0); f.play(4.0); f.tapSwing(0); f.play(3.0)
+        assertEquals(Big.PERIOD, f.readout(f.bench.stations[0]).big)
+        f.planetNext()
+        assertEquals(Big.LET_GO, f.readout(f.bench.stations[0]).big)
+    }
 }

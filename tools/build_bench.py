@@ -38,14 +38,18 @@ BEVEL_TOP_Z = BASE_Z - (BASE_Y1 - BASE_Y0) * math.tan(BEVEL)
 EAR_X0, EAR_X1, EAR_Y0 = 0.325, 0.395, -0.28
 POST_X, POST_Z, POST_R, BAR_Y, BAR_R, ARM_R = 0.36, -0.05, 0.012, 0.06, 0.008, 0.005
 TAG_Y, TAG_Z, TAG_TILT = 0.095, -0.05, math.radians(20)
-PLATE_W, PLATE_H, PLATE_Y = 0.11, 0.045, -0.275
-# v0.1.1 (Full Space): nameplate plaque on the left ear, ▶ keys on the felt, planet selector shelf on the right ear
-NAMEPLATE_W, NAMEPLATE_H = 0.09, 0.034
-KEY_W, KEY_H = 0.056, 0.040
-SEL_W, SEL_Z0, SEL_Z1, SEL_T = 0.10, -0.045, 0.055, 0.014
-SEL_GLOBE, SEL_GLOBE_R = (0.0, 0.065, -0.005), 0.032
-SEL_PREV, SEL_NEXT, SEL_KEY_R, SEL_KEY_TILT = (-0.072, 0.045, 0.010), (0.072, 0.045, 0.010), 0.023, math.radians(38)
-SEL_LABEL, SEL_LABEL_W, SEL_LABEL_H, SEL_LABEL_TILT = (0.0, 0.026, 0.042), 0.12, 0.040, math.radians(46)
+TAG_W, TAG_H = 0.09, 0.05
+# v0.1.2 (QA #2 q2-1): two walnut wings on the ears beside the control window (Layout.WING_*): the ▶ keys + readout plates
+# on the left one, the planet selector + KINETICA plaque on the right one. Wing frame: origin = board front-face centre.
+WING_Y, WING_W, WING_H, WING_T, WING_TILT = 0.004, 0.20, 0.22, 0.014, math.radians(20)
+ROW_Y = (0.075, 0.0, -0.075)
+PLATE_W, PLATE_H, PLATE_X, PLATE_Z = 0.115, 0.048, -0.035, 0.014
+NAMEPLATE_W, NAMEPLATE_H = 0.10, 0.036
+NAMEPLATE_L = (0.0, -0.085, 0.014)
+KEY_W, KEY_H = 0.060, 0.052
+SEL_GLOBE, SEL_GLOBE_R = (0.0, 0.052, 0.045), 0.032
+SEL_KEY_R = 0.023
+SEL_LABEL, SEL_LABEL_W, SEL_LABEL_H = (0.0, -0.037, 0.014), 0.13, 0.042
 
 
 def srgb_lin(c):
@@ -382,12 +386,6 @@ def build_base():
     for fx in (-0.31, 0.31):
         for fz in (-0.13, 0.13):
             cylinder(m, B, (fx, -0.31, fz), (fx, y0, fz), 0.012, seg=24)
-    # readout plate bezels on the bevel (plates float 3 mm in front, the bezel 2 mm proud of the bevel)
-    up = (0, math.cos(BEVEL), -math.sin(BEVEL))
-    for x in PIVOT_X:
-        zmid = BASE_Z - (PLATE_Y - BASE_Y0) * math.tan(BEVEL)
-        c = add((x, PLATE_Y, zmid), mul(bn, 0.001))
-        oriented_box(m, B, c, (1, 0, 0), up, PLATE_W + 0.008, PLATE_H + 0.006, 0.002)
     return m.write("base", lib.mats, lib.images)
 
 
@@ -397,19 +395,17 @@ def tilt_frame(tilt):
 
 
 def build_plaque():
-    """Nameplate plaque (own frame: face centre at the origin, facing +Z): brass backing + a walnut foot down to the ear.
-    The app places it at Layout.NAMEPLATE, yawed 40° and leaning back 48° (the canvas face floats 1 mm in front)."""
-    lib = Lib(); B = brass(lib); W = walnut(lib)
+    """Nameplate plaque (own frame: face centre at the origin, facing +Z): a brass backing on the right wing board.
+    The app places it at Layout.NAMEPLATE facing the eye, leaning back 12° (the canvas face floats 1 mm in front)."""
+    lib = Lib(); B = brass(lib)
     m = Mesh()
     oriented_box(m, B, (0, 0, -0.0025), (1, 0, 0), (0, 1, 0), NAMEPLATE_W + 0.008, NAMEPLATE_H + 0.008, 0.004)
-    # foot: a walnut block behind the lower edge, reaching back (it sinks into the ear top once tilted)
-    oriented_box(m, W, (0, -0.010, -0.018), (1, 0, 0), (0, 1, 0), NAMEPLATE_W * 0.7, 0.020, 0.026)
     return m.write("plaque", lib.mats, lib.images)
 
 
 def build_key():
-    """▶ swing key (own frame: face centre at the origin, facing +Z): a brass key cap with a rounded bezel, 22 mm deep so
-    it sinks into the felt once tilted back 50°. The canvas face (Swing / Stop) floats 0.8 mm in front."""
+    """▶ swing key (own frame: face centre at the origin, facing +Z): a brass key cap on a walnut block that stands on the
+    left wing board. The canvas face (Swing / Stop + hanger) floats 0.8 mm in front."""
     lib = Lib(); B = brass(lib); W = walnut(lib)
     m = Mesh()
     oriented_box(m, B, (0, 0, -0.004), (1, 0, 0), (0, 1, 0), KEY_W + 0.006, KEY_H + 0.006, 0.008)
@@ -422,25 +418,49 @@ def build_selkey():
     lib = Lib(); B = brass(lib)
     m = Mesh()
     cylinder(m, B, (0, 0, -0.010), (0, 0, -0.0004), SEL_KEY_R + 0.002, seg=48)
-    cylinder(m, B, (0, 0, -0.010), (0, -0.040, -0.030), 0.005, seg=24)
+    cylinder(m, B, (0, 0, -0.010), (0, 0, -0.026), 0.005, seg=24)
     return m.write("selkey", lib.mats, lib.images)
 
 
+def wing_board(m, W, B):
+    """Walnut board (front face at z = 0) with a brass edge strip on top and a brass stem down to the ear top."""
+    box(m, W, -WING_W / 2, WING_W / 2, -WING_H / 2, WING_H / 2, -WING_T, 0.0, k=3.0)
+    box(m, B, -WING_W / 2, WING_W / 2, WING_H / 2, WING_H / 2 + 0.004, -WING_T, 0.0, k=20)
+    stem = WING_Y - WING_H / 2 - BASE_Y1
+    cylinder(m, B, (0, -WING_H / 2, -WING_T / 2), (0, -WING_H / 2 - stem, -WING_T / 2), 0.009, seg=32)
+    cylinder(m, B, (0, -WING_H / 2 - stem, -WING_T / 2), (0, -WING_H / 2 - stem + 0.006, -WING_T / 2), 0.022, seg=48)
+
+
+def tilted_backing(m, B, c, w, h):
+    r, up = tilt_frame(WING_TILT)
+    n = norm(cross(r, up))
+    oriented_box(m, B, add(c, mul(n, -0.0025)), r, up, w, h, 0.004)
+
+
 def build_selector():
-    """Planet shelf (own frame = the selector group: origin on the right ear top, +Z toward the eye after the app's yaw):
-    a walnut plinth, the globe's brass cradle and the label's brass backing."""
+    """Right wing (own frame = the selector group: origin at the board's front-face centre, +Z toward the eye after the
+    app's yaw): the board + stem, a walnut ledge with the globe's brass cradle, label and plaque backings."""
     lib = Lib(); B = brass(lib); W = walnut(lib)
     m = Mesh()
-    box(m, W, -SEL_W, SEL_W, 0.0, SEL_T, SEL_Z0, SEL_Z1, k=3.0)
-    # cradle: stem + cup under the globe
+    wing_board(m, W, B)
     gx, gy, gz = SEL_GLOBE
-    cylinder(m, B, (gx, SEL_T, gz), (gx, gy - SEL_GLOBE_R + 0.004, gz), 0.006, seg=24)
+    ly = gy - SEL_GLOBE_R - 0.008
+    box(m, W, -0.040, 0.040, ly - 0.008, ly, 0.0, gz + 0.015, k=3.0)
+    cylinder(m, B, (gx, ly, gz), (gx, gy - SEL_GLOBE_R + 0.004, gz), 0.006, seg=24)
     cylinder(m, B, (gx, gy - SEL_GLOBE_R - 0.002, gz), (gx, gy - SEL_GLOBE_R + 0.006, gz), 0.016, seg=48)
-    # label backing (the canvas face floats 1 mm in front)
-    r, up = tilt_frame(SEL_LABEL_TILT)
-    n = norm(cross(r, up))
-    oriented_box(m, B, add(SEL_LABEL, mul(n, -0.0025)), r, up, SEL_LABEL_W + 0.008, SEL_LABEL_H + 0.008, 0.004)
+    tilted_backing(m, B, SEL_LABEL, SEL_LABEL_W + 0.008, SEL_LABEL_H + 0.008)
     return m.write("selector", lib.mats, lib.images)
+
+
+def build_wing_l():
+    """Left wing (own frame: origin at the board's front-face centre, +Z toward the eye): board + stem and the brass
+    backings of the three readout plates (rows = stations left / middle / right, top to bottom)."""
+    lib = Lib(); B = brass(lib); W = walnut(lib)
+    m = Mesh()
+    wing_board(m, W, B)
+    for y in ROW_Y:
+        tilted_backing(m, B, (PLATE_X, y, PLATE_Z), PLATE_W + 0.008, PLATE_H + 0.006)
+    return m.write("wing_l", lib.mats, lib.images)
 
 
 def build_frame():
@@ -456,8 +476,9 @@ def build_frame():
         cylinder(m, B, (x, PIVOT_Y, POST_Z), (x, PIVOT_Y, 0.0), ARM_R, seg=24)
         sphere(m, B, (x, PIVOT_Y, 0.0), 0.0065, seg=24, rings=16)
         # tag pedestal on the bar and the tag's brass backing (the canvas face floats 1.6 mm in front)
-        box(m, B, x - 0.008, x + 0.008, BAR_Y + BAR_R - 0.002, TAG_Y - 0.018, POST_Z - 0.005, POST_Z + 0.005, k=20)
-        oriented_box(m, B, add((x, TAG_Y, TAG_Z), mul(norm(cross((1, 0, 0), up)), -0.0015)), (1, 0, 0), up, 0.086, 0.046, 0.003)
+        box(m, B, x - 0.008, x + 0.008, BAR_Y + BAR_R - 0.002, TAG_Y - TAG_H / 2 * math.cos(TAG_TILT) + 0.002, POST_Z - 0.008, POST_Z + 0.002, k=20)
+        # backing front face on the tag plane; the app floats the canvas 2.5 mm in front of it (q2-2: no z-fighting)
+        oriented_box(m, B, add((x, TAG_Y, TAG_Z), mul(norm(cross((1, 0, 0), up)), -0.0015)), (1, 0, 0), up, TAG_W + 0.006, TAG_H + 0.006, 0.003)
     return m.write("frame", lib.mats, lib.images)
 
 
@@ -493,7 +514,7 @@ def build_bobs():
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
-    t = build_base() + build_frame() + build_rod() + build_hinge() + build_bobs() + build_plaque() + build_key() + build_selkey() + build_selector()
+    t = build_base() + build_frame() + build_rod() + build_hinge() + build_bobs() + build_plaque() + build_key() + build_selkey() + build_selector() + build_wing_l()
     old = os.path.join(OUT, "pointer.glb")
     if os.path.exists(old):
         os.remove(old)  # the dial is gone (v0.1.1 planet selector)

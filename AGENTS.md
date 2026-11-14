@@ -1,20 +1,23 @@
 # 动感力学 Kinetica: project guidance
 
 A walnut-and-brass physics bench in a PICO OS 6 **Full Space Mixed Stage** (Spatial SDK BOM 6.1.9), package
-`io.embodit.kinetica`, v0.1.1. Design contract: spatial-app-factory `apps/kinetica/design-package.json` (A skeleton,
+`io.embodit.kinetica`, v0.1.2. Design contract: spatial-app-factory `apps/kinetica/design-package.json` (A skeleton,
 container STAGE_MIXED, user 2026-11-12 profile D53; Gate B 2026-11-13 = defaults + the user's changes: ▶ swing keys,
 Mars, a 3D planet selector with ◀ ▶, 3D text >= 0.5°). The physics, the bench scene and the window pages are this app's own.
 
 ## Surfaces
-- **Stage** (default container `KineticaStage`, style Mixed): the bench placed 0.50 m ahead of the eye, origin 0.34 m
-  under it (S8, waits for a level and still head, 3 s timeout; DV-K8), facing you; settings [叫回面前] places it again.
-  Walnut base (grab it to move the bench, S7; stick left / right turns it while the ray is on the base; snaps to the
-  dashed default frame within 6 cm / 10°), two brass posts, crossbar, three stations (rod / spring / double) with tags,
-  readout plates on the bevel, a ▶ swing key per station on the felt (tap = default swing, tap again = stop), the
-  KINETICA plaque on the left ear (tap = reopen the control window), the planet selector on the right ear (globe of the
-  current planet, ◀ ▶ keys, name + g label; tap the globe = next). Head inside the bench -> 40 % opacity (D14).
-- **Control window** (`KineticaControl`, Planar 520 x 600 dp, opened by the system ahead of the head through the level
-  gate): native SpatialUI `TabBar`, two pages 玩 / 设置; the play page has the same planet ◀ ▶ row.
+- **Stage** (default container `KineticaStage`, style Mixed): the bench placed 0.66 m ahead of the eye, origin 0.35 m
+  under it (S8, waits for a level and still head, 3 s timeout; v0.1.2 DV-K13), facing you; settings [叫回面前] places it
+  again. Walnut base (grab it to move the bench, S7; stick left / right turns it while the ray is on the base; snaps to
+  the dashed default frame within 6 cm / 10°), two brass posts, crossbar, three stations (rod / spring / double) with
+  tags (two lines, canvas 2.5 mm off the backing). **Two walnut wings** on the ears, beside the control window and in the
+  level default view (QA #2 q2-1): the **left wing** has one row per station (top = left station): readout plate + ▶
+  swing key (tap = default swing, tap again = stop; the key names its hanger); the **right wing** has the planet
+  selector (globe of the current planet between ◀ ▶ keys, name + g label; tap the globe = next) and the KINETICA plaque
+  (tap = reopen the control window). Head inside the bench -> 40 % opacity (D14).
+- **Control window** (`KineticaControl`, Planar 800 x 420 dp landscape, two columns, opened by the system ahead of the
+  head through the level gate; it ends ~15° under the eye, the hangers sit below it, the wings beside it): native
+  SpatialUI `TabBar`, two pages 玩 / 设置; the play page has the same planet ◀ ▶ row.
 - Input: board-input template (system tap / drag; controller ray, hand ray, eye-hand with the distance gain, direct
   pinch) + a hand-joint direct-grab fallback (`platform/Trackers.kt` DirectGrab). No app-drawn ray (D41 更正).
 
@@ -24,7 +27,7 @@ Mars, a 3D planet selector with ◀ ▶, 3D text >= 0.5°). The physics, the ben
 | `domain/Bench.kt` | the physics (Planet: Moon 1.62 / Mars 3.71 / Earth 9.81 / Jupiter 24.79), autoSwing / stopStation |
 | `domain/BenchFlow.kt` | the single state source: input entry points, phases S0-S4 / S7 / S8, tips, coach, sounds, prefs |
 | `domain/StagePose.kt` | bench pose in the Stage: default pose, drag clamp, snap, stick turn, near-head fade, PlaceWait |
-| `domain/Layout.kt` | fixed positions (plates, tags, keys, plaque, selector), design eye, occlusion helpers |
+| `domain/Layout.kt` | fixed positions (tags, the two wings: plates, keys, selector, plaque), design eye, occlusion / default-view helpers |
 | `ui/bench/*` | `BenchScene` (Stage entities, per-frame placement in the ECS system), `BenchScreen` (board-input wiring, names), `BenchTextures` |
 | `ui/control/*` | the window pages; every Text logs `OVERFLOW <tag>` when cut |
 | `platform/*` | `WindowCtl` (level-gated window), `Trackers` (head, controller stick, hands, DirectGrab) |
@@ -38,7 +41,7 @@ python3 tools/build_bench.py ; ~/.factory-venv/bin/python tools/build_planets.py
 DEV=emulator-5562 tools/kt.sh install
 ```
 Emulators are shared: borrow with `python3 -I bin/emu_borrow.py borrow kinetica` in the factory, return after.
-The emulator camera can look down at the bench: `pico-cli camera move -d <serial> --text "pitch down 38 degrees"`.
+Cold start, level camera = the default view (everything you read or tap is in it). Low / side views: `pico-cli camera move -d <serial> --text "pitch down 30 degrees"` / `"turn left 25 degrees"`.
 
 ## Debug broadcast (QA screenshots)
 `adb shell am broadcast -a io.embodit.kinetica.DEBUG -p io.embodit.kinetica --es cmd <cmd> --es a "<arg>"` (or

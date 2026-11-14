@@ -169,7 +169,7 @@ fun BenchScreen() {
             val models = runCatching {
                 Models(
                     load("base"), load("frame"), load("rod"), load("hinge"), BobMat.entries.associateWith { load("bob_" + it.name.lowercase()) },
-                    load("plaque"), load("key"), load("selkey"), load("selector"), Planet.entries.associateWith { load("planet_" + it.name.lowercase()) },
+                    load("plaque"), load("key"), load("selkey"), load("selector"), load("wing_l"), Planet.entries.associateWith { load("planet_" + it.name.lowercase()) },
                 )
             }.onFailure { Log.e(TAG, "MODELS failed", it) }.getOrNull()
             Log.i(TAG, "MODELS loaded=${models != null} in ${android.os.SystemClock.elapsedRealtime() - t0} ms")
