@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Kinetica</string>
+    <string name="lang_code">en</string>
+    <string name="tab_play">Play</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- status sentence (design content.tone.lines) -->
+    <string name="line_s0">Look ahead. Bench coming.</string>
+    <string name="line_s1">Tap ▶ Swing, or pinch a ball, pull, let go.</string>
+    <string name="line_s2">Pull it where you like, then let go.</string>
+    <string name="line_s3">Watch it go. The period\'s on the brass plate.</string>
+    <string name="line_s4">All still. Pull another?</string>
+    <string name="line_coach2">Tap a tag up top to swap. Drag it up or down to resize.</string>
+    <string name="line_slow">Slow-mo</string>
+    <string name="stop_disabled">Already still.</string>
+    <string name="replay_disabled">Pull one first.</string>
+    <string name="gravity_line">On %1$s · %2$s</string>
+    <string name="periods_row">L {a} · M {b} · R {c}</string>
+
+    <string name="tip_label">Try this</string>
+    <string name="tip_answer_label">Got it</string>
+    <string-array name="tip_questions">
+        <item>Swap in a heavier ball. Faster?</item>
+        <item>Drag a rod\'s tag down to make it longer. Pull again.</item>
+        <item>Use ◀ ▶ by the planet on the right. Try the Moon.</item>
+        <item>Hang the brass ball on the spring.</item>
+        <item>Take the spring to Jupiter. Bounce it up and down. Same rhythm?</item>
+        <item>Pull the double up, let go, then hit Swing it again.</item>
+    </string-array>
+    <string-array name="tip_answers">
+        <item>Same beat. Weight doesn\'t matter.</item>
+        <item>Slower, right? Longer swings slower.</item>
+        <item>Lazy, huh. The Moon doesn\'t pull as hard.</item>
+        <item>Springs are different. Heavier, slower.</item>
+        <item>Nope. It just hangs lower.</item>
+        <item>One millimeter off. Totally different ride.</item>
+    </string-array>
+    <string name="tips_done">You\'ve tried them all. Go wild.</string>
+
+    <string name="btn_replay">Swing it again</string>
+    <string name="btn_stop">Stop all</string>
+    <string name="btn_slow">Slow-mo ×¼</string>
+    <string name="btn_mute">Mute</string>
+
+    <!-- plates, tags, dial (3D textures) -->
+    <string-array name="hangers"><item>Rod</item><item>Spring</item><item>Double</item></string-array>
+    <string-array name="sizes_rod"><item>Short</item><item>Mid</item><item>Long</item></string-array>
+    <string-array name="sizes_spring"><item>Stiff</item><item>Mid</item><item>Soft</item></string-array>
+    <string-array name="planet_labels"><item>MOON</item><item>MARS</item><item>EARTH</item><item>JUPITER</item></string-array>
+    <string-array name="planet_names"><item>the Moon</item><item>Mars</item><item>Earth</item><item>Jupiter</item></string-array>
+    <string name="readout_ideal">Ideal {t} s</string>
+    <string name="readout_flips">{n} flips</string>
+    <string name="readout_since">{t} s since release</string>
+    <string name="readout_swinging">Swinging</string>
+    <string name="nameplate">KINETICA</string>
+
+    <!-- settings -->
+    <string name="settings_language">Language: %1$s</string>
+    <string-array name="language_values"><item>Follow system</item><item>中文</item><item>English</item></string-array>
+    <string name="settings_volume">Volume</string>
+    <string name="btn_restore">Reset bench</string>
+    <string name="settings_about">Kinetica v%1$s · textures ambientCG CC0 · sounds Kenney CC0</string>
+    <string name="footnote">Ideal assumes small swings. Pull it high and it runs a bit slow. Four times longer, twice as slow.</string>
+    <string name="btn_quit">Quit app</string>
+    <string name="quit_q">Heading out?</string>
+    <string name="quit_line">The bench stays the way you set it.</string>
+    <string name="btn_cancel">Cancel</string>
+    <string name="btn_quit_go">Quit</string>
+    <string name="line_s7">Put it anywhere. Drop it on the dashed frame to snap.</string>
+    <string name="line_s8">Look ahead. Bench coming.</string>
+    <string name="readout_letgo">Let go</string>
+    <string name="readout_timing">Timing</string>
+    <string name="swing_go">Swing</string>
+    <string name="swing_stop">Stop</string>
+    <string name="look_ahead">Look ahead. Bench coming.</string>
+    <string name="turn_hint">Stick left/right to turn</string>
+    <string name="move_hint">Grab the wood base to move · stick to turn</string>
+    <string name="btn_recall">Bring it here</string>
+    <string name="planet_prev">Previous planet</string>
+    <string name="planet_next">Next planet</string>
+    <string name="btn_planet_prev">Prev</string>
+    <string name="btn_planet_next">Next</string>
+</resources>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">动感力学</string>
+    <string name="lang_code">zh</string>
+    <string name="tab_play">玩</string>
+    <string name="tab_settings">设置</string>
+
+    <string name="line_s0">看正前方，台子马上到。</string>
+    <string name="line_s1">点球前面的 ▶ 摆起来，或捏住一个球拉开松手。</string>
+    <string name="line_s2">拉到想要的地方，松手。</string>
+    <string name="line_s3">看它怎么动。铜牌上有周期。</string>
+    <string name="line_s4">都停了。再拉一个？</string>
+    <string name="line_coach2">点上面的小牌换挂法，上下拖改长短。</string>
+    <string name="line_slow">慢放中</string>
+    <string name="stop_disabled">本来就停着。</string>
+    <string name="replay_disabled">先拉一个。</string>
+    <string name="gravity_line">在%1$s上 · %2$s</string>
+    <string name="periods_row">左 {a} · 中 {b} · 右 {c}</string>
+
+    <string name="tip_label">试试看</string>
+    <string name="tip_answer_label">答案</string>
+    <string-array name="tip_questions">
+        <item>换个重点的球，摆得更快吗？</item>
+        <item>把摆杆的小牌往下拖，变长再拉。</item>
+        <item>点右边星球旁的 ◀ ▶，去月球试试。</item>
+        <item>弹簧挂个铜球呢？</item>
+        <item>弹簧去木星，上下弹的节奏变了吗？</item>
+        <item>双摆拉高松手，再按「再放一次」。</item>
+    </string-array>
+    <string-array name="tip_answers">
+        <item>一样快。跟轻重没关系。</item>
+        <item>慢了吧。越长越慢。</item>
+        <item>慢悠悠的。月球拉得没那么用力。</item>
+        <item>弹簧不一样，越重越慢。</item>
+        <item>没变，就是挂得更低。</item>
+        <item>只差 1 毫米，就完全不一样了。</item>
+    </string-array>
+    <string name="tips_done">都试过了。随便玩吧。</string>
+
+    <string name="btn_replay">再放一次</string>
+    <string name="btn_stop">全停下</string>
+    <string name="btn_slow">慢放 ×¼</string>
+    <string name="btn_mute">静音</string>
+
+    <string-array name="hangers"><item>摆杆</item><item>弹簧</item><item>双摆</item></string-array>
+    <string-array name="sizes_rod"><item>短</item><item>中</item><item>长</item></string-array>
+    <string-array name="sizes_spring"><item>硬</item><item>中</item><item>软</item></string-array>
+    <string-array name="planet_labels"><item>月球</item><item>火星</item><item>地球</item><item>木星</item></string-array>
+    <string-array name="planet_names"><item>月球</item><item>火星</item><item>地球</item><item>木星</item></string-array>
+    <string name="readout_ideal">理想 {t} s</string>
+    <string name="readout_flips">翻了 {n} 圈</string>
+    <string name="readout_since">这次放了 {t} s</string>
+    <string name="readout_swinging">在甩</string>
+    <string name="nameplate">KINETICA</string>
+
+    <string name="settings_language">语言：%1$s</string>
+    <string-array name="language_values"><item>跟随系统</item><item>中文</item><item>English</item></string-array>
+    <string name="settings_volume">音量</string>
+    <string name="btn_restore">恢复台子</string>
+    <string name="settings_about">动感力学 v%1$s · 贴图 ambientCG CC0 · 声音 Kenney CC0</string>
+    <string name="footnote">理想值是小角度算的，拉得很高时实测会慢一点。长 4 倍才慢一倍。</string>
+    <string name="btn_quit">退出应用</string>
+    <string name="quit_q">要走了？</string>
+    <string name="quit_line">台子会记住现在的样子。</string>
+    <string name="btn_cancel">取消</string>
+    <string name="btn_quit_go">退出</string>
+    <string name="line_s7">放哪都行。拖到虚线框上会吸住。</string>
+    <string name="line_s8">看正前方，台子马上到。</string>
+    <string name="readout_letgo">放手后测</string>
+    <string name="readout_timing">在测</string>
+    <string name="swing_go">摆起来</string>
+    <string name="swing_stop">停下</string>
+    <string name="look_ahead">看正前方，台子马上到。</string>
+    <string name="turn_hint">摇杆左右转动</string>
+    <string name="move_hint">抓住木台座能挪 · 摇杆左右转动</string>
+    <string name="btn_recall">叫回面前</string>
+    <string name="planet_prev">上一个星球</string>
+    <string name="planet_next">下一个星球</string>
+    <string name="btn_planet_prev">上一个</string>
+    <string name="btn_planet_next">下一个</string>
+</resources>
