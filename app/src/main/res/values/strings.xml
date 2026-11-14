@@ -47,8 +47,8 @@
     <string-array name="hangers"><item>Rod</item><item>Spring</item><item>Double</item></string-array>
     <string-array name="sizes_rod"><item>Short</item><item>Mid</item><item>Long</item></string-array>
     <string-array name="sizes_spring"><item>Stiff</item><item>Mid</item><item>Soft</item></string-array>
-    <string-array name="planet_labels"><item>MOON</item><item>MARS</item><item>EARTH</item><item>JUPITER</item></string-array>
-    <string-array name="planet_names"><item>the Moon</item><item>Mars</item><item>Earth</item><item>Jupiter</item></string-array>
+    <string-array name="planet_labels"><item>MERCURY</item><item>VENUS</item><item>EARTH</item><item>MOON</item><item>MARS</item><item>JUPITER</item><item>SATURN</item><item>URANUS</item><item>NEPTUNE</item><item>PLUTO · DWARF</item></string-array>
+    <string-array name="planet_names"><item>Mercury</item><item>Venus</item><item>Earth</item><item>the Moon</item><item>Mars</item><item>Jupiter</item><item>Saturn</item><item>Uranus</item><item>Neptune</item><item>Pluto</item></string-array>
     <string name="readout_ideal">Ideal {t} s</string>
     <string name="readout_flips">{n} flips</string>
     <string name="readout_since">{t} s since release</string>
@@ -65,6 +65,7 @@
     <string name="btn_quit">Quit app</string>
     <string name="quit_q">Heading out?</string>
     <string name="quit_line">The bench stays the way you set it.</string>
+    <string name="btn_back">Back</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_quit_go">Quit</string>
     <string name="line_s7">Put it anywhere. Drop it on the dashed frame to snap.</string>
@@ -81,4 +82,27 @@
     <string name="planet_next">Next planet</string>
     <string name="btn_planet_prev">Prev</string>
     <string name="btn_planet_next">Next</string>
+    <!-- 怎么操作 / How to (B19, ui_gates how-to): one row per main action, hand way + controller way -->
+    <string name="how_to_title">How to play</string>
+    <string name="btn_how_to">How to</string>
+    <string name="how_to_col_hand">Hand</string>
+    <string name="how_to_col_ctrl">Controller</string>
+    <string name="how_to_pull">Pull &amp; let go</string>
+    <string name="how_to_pull_hand">Pinch a ball, pull, let go</string>
+    <string name="how_to_pull_ctrl">Trigger on a ball, drag, release</string>
+    <string name="how_to_swing">▶ Swing</string>
+    <string name="how_to_swing_hand">Pinch ▶. Again to stop</string>
+    <string name="how_to_swing_ctrl">Trigger on ▶. Again to stop</string>
+    <string name="how_to_ball">Change ball</string>
+    <string name="how_to_ball_hand">Pinch a ball, don\'t pull</string>
+    <string name="how_to_ball_ctrl">Tap the trigger on a ball</string>
+    <string name="how_to_tag">Tags</string>
+    <string name="how_to_tag_hand">Pinch: swap. Drag up/down: length</string>
+    <string name="how_to_tag_ctrl">Tap: swap. Drag up/down: length</string>
+    <string name="how_to_planet">Planet</string>
+    <string name="how_to_planet_hand">Pinch ◀ ▶ or the planet</string>
+    <string name="how_to_planet_ctrl">Trigger on ◀ ▶</string>
+    <string name="how_to_move">Move bench</string>
+    <string name="how_to_move_hand">Grab the wood base, drag</string>
+    <string name="how_to_move_ctrl">Drag the base. Stick turns it</string>
 </resources>

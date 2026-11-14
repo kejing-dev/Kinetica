@@ -17,8 +17,14 @@ enum class BobMat(val massKg: Double, val visualDiaM: Double, val restitution: D
 }
 
 /** Moon / Mars / Earth / Jupiter (user 2026-11-13: add Mars); the selector steps through them with ◀ ▶. */
-enum class Planet(val g: Double) {
-    MOON(1.62), MARS(3.71), EARTH(9.81), JUPITER(24.79);
+/**
+ * The gravity selector (user 2026-11-14: the whole solar system), ordered by distance from the Sun; the Moon sits right
+ * after the Earth (lesson 2 uses it). Pluto is a dwarf planet (its label says so). g in m/s² from [BenchConfig].
+ */
+enum class Planet(val g: Double, val dwarf: Boolean = false) {
+    MERCURY(BenchConfig.G_MERCURY), VENUS(BenchConfig.G_VENUS), EARTH(BenchConfig.G_EARTH), MOON(BenchConfig.G_MOON),
+    MARS(BenchConfig.G_MARS), JUPITER(BenchConfig.G_JUPITER), SATURN(BenchConfig.G_SATURN), URANUS(BenchConfig.G_URANUS),
+    NEPTUNE(BenchConfig.G_NEPTUNE), PLUTO(BenchConfig.G_PLUTO, dwarf = true);
     fun next() = entries[(ordinal + 1) % entries.size]
     fun prev() = entries[(ordinal + entries.size - 1) % entries.size]
 }
@@ -28,6 +34,18 @@ enum class Planet(val g: Double) {
  * kilograms; origin = volume centre, +Y up, +Z toward the user. Locked by BenchPhysicsTest.
  */
 object BenchConfig {
+    // surface gravity, m/s² (user 2026-11-14 list; NASA planetary fact sheet values)
+    const val G_MERCURY = 3.70
+    const val G_VENUS = 8.87
+    const val G_EARTH = 9.81
+    const val G_MOON = 1.62
+    const val G_MARS = 3.71
+    const val G_JUPITER = 24.79
+    const val G_SATURN = 10.44
+    const val G_URANUS = 8.69
+    const val G_NEPTUNE = 11.15
+    const val G_PLUTO = 0.62
+
     const val H = 1.0 / 240.0
     const val MAX_SUBSTEPS = 4
     const val SLOW = 0.25
@@ -819,10 +837,19 @@ class Bench(defaults: List<Triple<Hanger, Int, List<BobMat>>> = DEFAULT) {
     }
 
     /** Changes g. Moving bobs keep moving; periods restart. A resting spring then bounces a little (it is off its new rest). */
+    /**
+     * New g (v0.1.3 known issue: a spring left on its old rest woke up ~35 s later, and repeated changes left a ±2 mm
+     * sideways sway): every station that is not held goes to its rest under the new g with zero velocity, the settle
+     * timers stop, and the meter starts over (a period measured under the old g is not this planet's: it reads "let go").
+     */
     fun changePlanet(p: Planet) {
         planet = p
-        // a period measured under the old g is no longer this planet's: clear it (a stopped station then reads "let go")
-        for (s in stations) { s.meter.crosses.clear(); s.meter.prev = null; s.meter.minCrosses = 3 }
+        settleLeft = 0.0
+        for (s in stations) {
+            stationSettle[s.index] = 0.0; settleExtra[s.index] = 0
+            if (s.bodies.any { it.held }) { s.meter.crosses.clear(); s.meter.prev = null; s.meter.minCrosses = 3; continue }
+            rest(s)
+        }
     }
 
     /** Station [si] is moving or off its rest (its ▶ key then reads ■ Stop). */

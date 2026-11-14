@@ -18,4 +18,6 @@ enum class Page(val stateId: String) { PLAY("P1"), SETTINGS("P2") }
 object Ui {
     var page by mutableStateOf(Page.PLAY)
     var exitConfirm by mutableStateOf(false)
+    /** Settings shows the 怎么操作 / How to screen in place of its controls (B19). */
+    var howTo by mutableStateOf(false)
 }

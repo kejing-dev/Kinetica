@@ -45,8 +45,8 @@
     <string-array name="hangers"><item>摆杆</item><item>弹簧</item><item>双摆</item></string-array>
     <string-array name="sizes_rod"><item>短</item><item>中</item><item>长</item></string-array>
     <string-array name="sizes_spring"><item>硬</item><item>中</item><item>软</item></string-array>
-    <string-array name="planet_labels"><item>月球</item><item>火星</item><item>地球</item><item>木星</item></string-array>
-    <string-array name="planet_names"><item>月球</item><item>火星</item><item>地球</item><item>木星</item></string-array>
+    <string-array name="planet_labels"><item>水星</item><item>金星</item><item>地球</item><item>月球</item><item>火星</item><item>木星</item><item>土星</item><item>天王星</item><item>海王星</item><item>冥王星 · 矮行星</item></string-array>
+    <string-array name="planet_names"><item>水星</item><item>金星</item><item>地球</item><item>月球</item><item>火星</item><item>木星</item><item>土星</item><item>天王星</item><item>海王星</item><item>冥王星</item></string-array>
     <string name="readout_ideal">理想 {t} s</string>
     <string name="readout_flips">翻了 {n} 圈</string>
     <string name="readout_since">这次放了 {t} s</string>
@@ -62,6 +62,7 @@
     <string name="btn_quit">退出应用</string>
     <string name="quit_q">要走了？</string>
     <string name="quit_line">台子会记住现在的样子。</string>
+    <string name="btn_back">返回</string>
     <string name="btn_cancel">取消</string>
     <string name="btn_quit_go">退出</string>
     <string name="line_s7">放哪都行。拖到虚线框上会吸住。</string>
@@ -78,4 +79,27 @@
     <string name="planet_next">下一个星球</string>
     <string name="btn_planet_prev">上一个</string>
     <string name="btn_planet_next">下一个</string>
+    <!-- 怎么操作 / How to (B19, ui_gates how-to): one row per main action, hand way + controller way -->
+    <string name="how_to_title">怎么操作</string>
+    <string name="btn_how_to">怎么操作</string>
+    <string name="how_to_col_hand">手势</string>
+    <string name="how_to_col_ctrl">手柄</string>
+    <string name="how_to_pull">拉开再松手</string>
+    <string name="how_to_pull_hand">捏住球，拉开，松手</string>
+    <string name="how_to_pull_ctrl">射线指球，按住扳机拖，松开</string>
+    <string name="how_to_swing">▶ 摆起来</string>
+    <string name="how_to_swing_hand">捏 ▶，再捏就停</string>
+    <string name="how_to_swing_ctrl">扳机点 ▶，再点就停</string>
+    <string name="how_to_ball">换球</string>
+    <string name="how_to_ball_hand">捏一下球，不拉</string>
+    <string name="how_to_ball_ctrl">指着球按一下扳机</string>
+    <string name="how_to_tag">挂牌</string>
+    <string name="how_to_tag_hand">捏一下换挂法，上下拖改长短</string>
+    <string name="how_to_tag_ctrl">点一下换挂法，按住上下拖改长短</string>
+    <string name="how_to_planet">换星球</string>
+    <string name="how_to_planet_hand">捏 ◀ ▶ 或星球</string>
+    <string name="how_to_planet_ctrl">扳机点 ◀ ▶</string>
+    <string name="how_to_move">挪台子</string>
+    <string name="how_to_move_hand">抓住木台座拖</string>
+    <string name="how_to_move_ctrl">扳机拖台座，摇杆左右转</string>
 </resources>

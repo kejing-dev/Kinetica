@@ -24,7 +24,7 @@ data class Lex(
     val since: String,
     val swinging: String,
     val answers: List<String>,
-    /** 3D planet label, line 1 (MOON / MARS / EARTH / JUPITER; 月球 …), index = Planet.ordinal. */
+    /** 3D planet label, line 1 (MERCURY … PLUTO · DWARF; 水星 … 冥王星 · 矮行星), index = Planet.ordinal. */
     val planetLabels: List<String>,
     val planetNames: List<String>,
     val periodsRow: String,
@@ -73,8 +73,8 @@ data class Lex(
                 "Same beat. Weight doesn't matter.", "Slower, right? Longer swings slower.", "Lazy, huh. The Moon doesn't pull as hard.",
                 "Springs are different. Heavier, slower.", "Nope. It just hangs lower.", "One millimeter off. Totally different ride.",
             ),
-            planetLabels = listOf("MOON", "MARS", "EARTH", "JUPITER"),
-            planetNames = listOf("the Moon", "Mars", "Earth", "Jupiter"),
+            planetLabels = listOf("MERCURY", "VENUS", "EARTH", "MOON", "MARS", "JUPITER", "SATURN", "URANUS", "NEPTUNE", "PLUTO · DWARF"),
+            planetNames = listOf("Mercury", "Venus", "Earth", "the Moon", "Mars", "Jupiter", "Saturn", "Uranus", "Neptune", "Pluto"),
             periodsRow = "L {a} · M {b} · R {c}",
             stationNames = listOf("L", "M", "R"),
         )

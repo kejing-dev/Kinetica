@@ -11,6 +11,11 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -103,13 +108,20 @@ internal fun ToggleButton(text: String, tag: String, on: Boolean, onClick: () ->
     }
 }
 
-/** A draggable slider that snaps to three stops (low / mid / high) and shows the percentage (B20). */
+/**
+ * A draggable slider with three stops (low / mid / high) and the percentage (B20). The Slider gets a free Float (see
+ * [VolumeDrag]): taps at 0 / 50 / 100 % and short drags change the stop; on release the thumb snaps to it.
+ */
 @Composable
 internal fun VolumeSlider(level: Int, onChange: (Int) -> Unit, modifier: Modifier = Modifier) {
+    val drag = remember { VolumeDrag(level) }
+    var pos by remember { mutableFloatStateOf(level.toFloat()) }
+    LaunchedEffect(level) { drag.sync(level); pos = drag.pos }
     Row(modifier, verticalAlignment = Alignment.CenterVertically) {
         Slider(
-            value = level.toFloat(),
-            onValueChange = { v -> val snapped = kotlin.math.round(v).toInt().coerceIn(0, 2); if (snapped != level) onChange(snapped) },
+            value = pos,
+            onValueChange = { v -> val changed = drag.move(v); pos = drag.pos; if (changed != null) { Log.i(TAG, "VOLUME live $changed"); onChange(changed) } },
+            onValueChangeFinished = { val at = drag.pos; val changed = drag.finish(); pos = drag.pos; Log.i(TAG, "VOLUME snap ${drag.level} from pos %.3f".format(at)); if (changed != null) onChange(changed) },
             modifier = Modifier.weight(1f).height(48.dp),
             valueRange = 0f..2f,
         )

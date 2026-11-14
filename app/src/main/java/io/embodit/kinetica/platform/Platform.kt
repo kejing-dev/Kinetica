@@ -62,9 +62,18 @@ class Graph(context: Context) {
         recall()
     }
 
+    private var soundApplied = false
+
     private fun applySound(s: Settings) {
         sounds.enabled = !s.muted
+        val changed = soundApplied && sounds.volumeLevel != s.volume
         sounds.volumeLevel = s.volume
+        soundApplied = true
+        if (changed) {
+            // the new stop is heard at once (B20: the user checks the slider by ear)
+            android.util.Log.i(TAG, "VOLUME applied level=${s.volume} (${VOLUME_PERCENT[s.volume.coerceIn(0, 2)]} %)")
+            sounds.play(Sound.CLICK)
+        }
     }
 
     /** The one writer of settings from the panel: goes through the flow so the bench never saves a stale copy. */

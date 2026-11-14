@@ -1,5 +1,21 @@
 # Changelog / 更新记录
 
+## v0.1.3 (2026-11-14)
+
+中文
+- 设置里的音量条点哪就到哪：点 0 / 50 / 100% 直接换档，轻轻拖一下也会换一档，松手吸附，换档时响一声让你听到新音量。
+- 星球选择器扩到整个太阳系：水星 3.70、金星 8.87、地球 9.81、月球 1.62、火星 3.71、木星 24.79、土星 10.44、天王星 8.69、海王星 11.15、冥王星 0.62（矮行星），单位 m/s²，按离太阳远近排，◀ ▶ 循环。土星带环，天王星带细环。
+- 换星球时球从一边滑出缩小、新的从另一边滑进放大，约 1/3 秒。
+- 换星球时三个挂位回到新重力下的平衡位置、速度清零：弹簧不再过 35 s 自己弹，也不再留下 ±2 mm 侧晃。
+- 设置里加「怎么操作」：每个主要动作一行，手势和手柄的做法并排写。
+
+English
+- The volume slider in Settings responds to taps: tap 0 / 50 / 100 % to jump there, a small drag moves one stop, it snaps on release and clicks so you hear the new level.
+- The planet selector now covers the solar system: Mercury 3.70, Venus 8.87, Earth 9.81, the Moon 1.62, Mars 3.71, Jupiter 24.79, Saturn 10.44, Uranus 8.69, Neptune 11.15, Pluto 0.62 (dwarf planet), in m/s², ordered from the Sun, ◀ ▶ wrap around. Saturn has its rings, Uranus a thin ring.
+- Changing planet slides the old globe out and grows the new one in (about 1/3 s).
+- A planet change puts every hanger on its new rest with zero velocity: no spring waking up 35 s later, no ±2 mm sideways sway.
+- New "How to" screen in Settings: one row per main action, hand gesture and controller side by side.
+
 ## v0.1.2 (2026-11-13)
 
 中文

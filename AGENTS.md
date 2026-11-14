@@ -1,7 +1,7 @@
 # 动感力学 Kinetica: project guidance
 
 A walnut-and-brass physics bench in a PICO OS 6 **Full Space Mixed Stage** (Spatial SDK BOM 6.1.9), package
-`io.embodit.kinetica`, v0.1.2. Design contract: spatial-app-factory `apps/kinetica/design-package.json` (A skeleton,
+`io.embodit.kinetica`, v0.1.3. Design contract: spatial-app-factory `apps/kinetica/design-package.json` (A skeleton,
 container STAGE_MIXED, user 2026-11-12 profile D53; Gate B 2026-11-13 = defaults + the user's changes: ▶ swing keys,
 Mars, a 3D planet selector with ◀ ▶, 3D text >= 0.5°). The physics, the bench scene and the window pages are this app's own.
 
@@ -24,14 +24,14 @@ Mars, a 3D planet selector with ◀ ▶, 3D text >= 0.5°). The physics, the ben
 ## Code
 | Path | What |
 |---|---|
-| `domain/Bench.kt` | the physics (Planet: Moon 1.62 / Mars 3.71 / Earth 9.81 / Jupiter 24.79), autoSwing / stopStation |
+| `domain/Bench.kt` | the physics (Planet, ordered from the Sun: Mercury 3.70 / Venus 8.87 / Earth 9.81 / Moon 1.62 / Mars 3.71 / Jupiter 24.79 / Saturn 10.44 / Uranus 8.69 / Neptune 11.15 / Pluto 0.62 dwarf; g in BenchConfig.G_*; a change rests every station on the new g), autoSwing / stopStation |
 | `domain/BenchFlow.kt` | the single state source: input entry points, phases S0-S4 / S7 / S8, tips, coach, sounds, prefs |
 | `domain/StagePose.kt` | bench pose in the Stage: default pose, drag clamp, snap, stick turn, near-head fade, PlaceWait |
 | `domain/Layout.kt` | fixed positions (tags, the two wings: plates, keys, selector, plaque), design eye, occlusion / default-view helpers |
 | `ui/bench/*` | `BenchScene` (Stage entities, per-frame placement in the ECS system), `BenchScreen` (board-input wiring, names), `BenchTextures` |
-| `ui/control/*` | the window pages; every Text logs `OVERFLOW <tag>` when cut |
+| `ui/control/*` | the window pages (Settings has a 怎么操作 / How to sub-screen); `VolumeDrag` = the three-stop slider logic (free Float, taps and short drags change the stop); every Text logs `OVERFLOW <tag>` when cut |
 | `platform/*` | `WindowCtl` (level-gated window), `Trackers` (head, controller stick, hands, DirectGrab) |
-| `tools/` | `build_bench.py` (GLBs + CC0 PBR), `build_planets.py` (procedural planet globes), `import_cc0_sounds.py`, `loudness.py`, `build_icon.py`, `contrast.py`, `kt.sh` |
+| `tools/` | `build_bench.py` (GLBs + CC0 PBR), `build_planets.py` (procedural globes for all ten bodies; Saturn / Uranus with opaque ring geometry), `import_cc0_sounds.py`, `loudness.py`, `build_icon.py`, `contrast.py`, `kt.sh` |
 
 ## Build / test (kj-mbp-m5)
 ```bash
@@ -51,13 +51,13 @@ a real pinch (D29).
 | State | Command | Notes |
 |---|---|---|
 | S0 准备中 | `s0hold on`, force-stop + launch, capture within 10 s, `s0hold off` | the plain slab stand-in + spinner |
-| S1 静止 | `preset default` · `coach on|off` · `planet moon|mars|earth|jupiter` | coach = left rod ball glows |
+| S1 静止 | `preset default` · `coach on|off` · `planet mercury|venus|earth|moon|mars|jupiter|saturn|uranus|neptune|pluto` | coach = left rod ball glows |
 | S2 捏住 | `hold S2` | left rod held at 60°, spring stretched |
 | S3 运动中 | `hold S3` (= preset moving + 3.0 s, frozen) · `preset collide` (left ball hits the middle one) | `hold off` unfreezes |
 | S4 停下来 | `hold S4` | settling frozen at 0.3 s |
 | S5 换挂法 | `hold S5` | middle station mid-swap (150 ms frame) |
 | S6 改长短 | `hold S6` · `sizes rod|spring|double` | three sizes side by side |
-| P1 / P2 | `page play|settings` · `lang zh|en|system` | |
+| P1 / P2 | `page play|settings` · `howto on|off` (Settings → 怎么操作) · `lang zh|en|system` | |
 | P3 退出确认 | `exitask` · `cancel` · `confirm` | |
 | P4 面板已关 | `closepanel` · `tap nameplate` reopens | |
 | S7 挪台子 | `drag "bench 0.2 0 0 hold"` · `rotate "bench 30"` · `release-bench` | dashed frame shows while held |
@@ -69,8 +69,8 @@ Other: `tap "bob <i> <k>"|"tag <i>"|"go <i>"|prev|next|globe|nameplate`, `drag "
 Stations: 0 left, 1 middle, 2 right; bob k = 0 (upper) / 1 (the double's lower bob).
 
 ## Screenshot list (QA)
-S0; S1 zh/en, coach on/off, Moon/Mars/Earth/Jupiter, ▶ keys still / ■ moving; S2; S3 + collide frame; S4; S5 x3 hangers; S6 sizes;
-P1 with S1/S2/S3, tip 1 + answered, [再放一次] grey; P2 zh/en; P3 zh/en; P4 closed + reopened.
+S0; S1 zh/en, coach on/off, each of the ten planets (zh + en), ▶ keys still / ■ moving; S2; S3 + collide frame; S4; S5 x3 hangers; S6 sizes;
+P1 with S1/S2/S3, tip 1 + answered, [再放一次] grey; P2 zh/en; P2 怎么操作 zh/en; P3 zh/en; P4 closed + reopened.
 
 ## Known
 - 3D pinches / drags are not reachable by `pico-cli interact` on the Mac emulator: driven by the debug broadcast through

@@ -230,6 +230,10 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
     private var snapFrame: Entity? = null
     private val dashes = ArrayList<Entity>()
     private var globe: Entity? = null
+    private var shownPlanet: Planet? = null
+    private var leavingPlanet: Planet? = null
+    private var switchAt = -10_000L
+    private var switchDir = 1
     private val globeModels = HashMap<Planet, Entity>()
     private val selKeys = HashMap<String, Entity>()
     private val arrowMats = HashMap<Boolean, UnlitMaterial>()
@@ -311,6 +315,7 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
 
     private fun rotX(deg: Double) = Quat(Vector3(1f, 0f, 0f), Math.toRadians(deg).toFloat())
     private fun rotY(rad: Double) = Quat(Vector3(0f, 1f, 0f), rad.toFloat())
+    private fun rotZ(deg: Double) = Quat(Vector3(0f, 0f, 1f), Math.toRadians(deg).toFloat())
     /** A wing face: the wing's yaw toward the eye, leaning back WING_TILT_DEG (q2-1 / q2-5). */
     private fun wingRot(right: Boolean) = rotY(Layout.wingYaw(right)).times(rotX(-Layout.WING_TILT_DEG))
 
@@ -398,7 +403,7 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
         np.addChild(ModelEntity(r.nameplatePlane, nameplateMat!!).apply { setName("nameplateFace"); transform().setPosition(Vector3(0f, 0f, 0.001f)) })
         GazeTargets.install(np, r.plaqueShape, r.physics)
         root.addChild(np)
-        // planet selector (D13): shelf, globe (four planets, the current one shown), ◀ ▶ keys, label
+        // planet selector (D13): shelf, globe (ten bodies Sun -> out, the current one centred), ◀ ▶ keys, label
         val sel = Entity().apply { setName("selector") }
         place(sel, Layout.SEL); sel.transform().setQuaternion(rotY(Math.toRadians(Layout.SEL_YAW_DEG)))
         root.addChild(sel)
@@ -799,10 +804,32 @@ internal class BenchScene(private val graph: Graph, private val scope: Coroutine
                 hr.enabled = b != null && held == null
                 if (b != null) place(hr, b.p + Vec3(0.0, 0.0, -0.0015))
             }
-            // planet globe: the current one, turning slowly
+            // planet globe: the current one centred at full size, turning slowly about its own (tilted) axis; a change
+            // (▶ = the list moves left) slides the old one out while it shrinks, the new one comes in from the ▶ side
+            // and grows with a small overshoot (D51: smooth, about 1/3 s)
             val planet = bench.planet
-            for ((p, m) in globeModels) m.enabled = p == planet
-            globe?.transform()?.setQuaternion(rotY(((now - startMs) / 1000.0) * Math.toRadians(12.0)))
+            if (planet != shownPlanet) {
+                val old = shownPlanet
+                switchDir = if (old != null && planet == old.prev()) -1 else 1
+                leavingPlanet = old; shownPlanet = planet; switchAt = now
+            }
+            val sw = Layout.globeSwitch(now - switchAt)
+            val spin = ((now - startMs) / 1000.0) * Math.toRadians(12.0)
+            val d = Layout.SEL_GLOBE_D
+            for ((p, m) in globeModels) {
+                val (dx, sc) = when (p) {
+                    planet -> switchDir * sw.inOffsetM to sw.inScale
+                    leavingPlanet -> -switchDir * sw.outOffsetM to sw.outScale
+                    else -> 0.0 to 0.0
+                }
+                m.enabled = sc > 0.0
+                if (!m.enabled) continue
+                place(m, Vec3(dx, 0.0, 0.0))
+                val k = (d * sc).toFloat(); m.transform().setScaleVector(Vector3(k, k, k))
+                val (pitch, roll) = Layout.planetTiltDeg(p)
+                m.transform().setQuaternion(rotZ(roll).times(rotX(pitch)).times(rotY(spin)))
+            }
+            if (sw.done) leavingPlanet = null
         }
         // key press: the key dips 4 mm along its normal for 120 ms
         for (i in 0..2) {

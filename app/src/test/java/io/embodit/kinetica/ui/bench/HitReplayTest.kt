@@ -42,8 +42,8 @@ class HitReplayTest {
         assertTrue(l.onDragStart("tag:0", src)); l.onDragMove(io.embodit.kinetica.ui.bench.input.Offset3M(0f, -0.03f, 0f)); l.onDragEnd()
         assertEquals(2, f.bench.stations[0].size)
         // planet keys / globe, ▶ key, nameplate
-        l.onTap("planet:next", src, null); assertEquals(Planet.JUPITER, f.bench.planet)
-        l.onTap("planet:prev", src, null); l.onTap("planet:prev", src, null); assertEquals(Planet.MARS, f.bench.planet)
+        l.onTap("planet:next", src, null); assertEquals(Planet.MOON, f.bench.planet)
+        l.onTap("planet:prev", src, null); l.onTap("planet:prev", src, null); assertEquals(Planet.VENUS, f.bench.planet)
         l.onTap("planet:globe", src, null); assertEquals(Planet.EARTH, f.bench.planet)
         l.onTap("go:0", src, null); assertTrue(f.stationMoving(0))
         l.onTap("go:0", src, null); assertTrue(!f.stationMoving(0))

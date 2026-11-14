@@ -33,11 +33,11 @@ import kotlin.math.sin
  *   drag "bench <dx> <dy> <dz> [hold]"   grab the base and move it (metres, Stage axes) · rotate bench <deg> · stick <x|off>
  *   recall (settings [叫回面前]) · place (dump the placement diagnostics)
  *   release "[vx vy vz]"   let go of the held bob with that hand velocity (m/s)
- *   replay · stop · slow on|off · restore · preset default|collide|chaos|moving · planet moon|mars|earth|jupiter
+ *   replay · stop · slow on|off · restore · preset default|collide|chaos|moving · planet mercury|venus|earth|moon|mars|jupiter|saturn|uranus|neptune|pluto
  *   size "<i> <0-2>" · sizes rod|spring|double · mat "<i> <k> wood|steel|brass" · type "<i> rod|spring|double"
  *   hold S2|S3|S4|S5|S6|off   QA holds (physics frozen / animation frame frozen)  · ff <seconds> · freeze on|off
  *   tip <0-6> · answer "<tip> <station>" · coach on|off · ftest on|off (F↑ on every brass face)
- *   page play|settings · lang zh|en|system · mute on|off · volume 0-2 · closepanel · openpanel · exitask · confirm · cancel
+ *   page play|settings · howto on|off · lang zh|en|system · mute on|off · volume 0-2 · closepanel · openpanel · exitask · confirm · cancel
  *   s0hold on|off · dump · instances
  */
 class DebugCommandReceiver : BroadcastReceiver() {
@@ -115,7 +115,7 @@ class DebugCommandReceiver : BroadcastReceiver() {
             "slow" -> flow.setSlow(on)
             "restore" -> flow.restoreDefault()
             "preset" -> preset(a)
-            "planet" -> flow.setPlanet(when (a) { "moon" -> Planet.MOON; "mars" -> Planet.MARS; "jupiter" -> Planet.JUPITER; else -> Planet.EARTH })
+            "planet" -> flow.setPlanet(Planet.entries.firstOrNull { it.name.equals(a.trim(), ignoreCase = true) } ?: Planet.EARTH)
             "rotate" -> scene?.turn(f[1].toDouble())
             "stick" -> scene?.controllers?.debugStick = a.toFloatOrNull()
             "release-bench" -> listener.onDragEnd()
@@ -148,7 +148,8 @@ class DebugCommandReceiver : BroadcastReceiver() {
             "volume" -> graph.update { it.copy(volume = a.toInt().coerceIn(0, 2)) }
             "closepanel" -> graph.window.close()
             "openpanel" -> graph.window.request("debug")
-            "exitask" -> { Ui.page = Page.SETTINGS; Ui.exitConfirm = true }
+            "exitask" -> { Ui.page = Page.SETTINGS; Ui.howTo = false; Ui.exitConfirm = true }
+            "howto" -> { Ui.page = Page.SETTINGS; Ui.exitConfirm = false; Ui.howTo = a != "off" }
             "cancel" -> Ui.exitConfirm = false
             "confirm" -> exitApp(context, graph)
             "s0hold" -> context.getSharedPreferences("debug", Context.MODE_PRIVATE).edit().putBoolean("s0hold", on).apply()

@@ -165,18 +165,31 @@ object BenchTextures {
      * Planet label 512 x 171 for 0.12 x 0.040 m: the name at 1.2 cm (cap ~0.84 cm), g at 1.1 cm (cap ~0.77 cm; the design
      * eye needs >= 0.64 cm at 0.73 m), four dots for Moon / Mars / Earth / Jupiter with the current one ringed.
      */
+    /** Dot colours of the planet list, index = Planet.ordinal (Mercury … Pluto). */
+    private val PLANET_DOTS = intArrayOf(
+        Color.rgb(0x9A, 0x8E, 0x82), Color.rgb(0xE0, 0xC0, 0x7A), Color.rgb(0x2E, 0x6E, 0xB4), Color.rgb(0xB8, 0xB5, 0xAE), Color.rgb(0xC0, 0x5A, 0x2E),
+        Color.rgb(0xD8, 0xB0, 0x80), Color.rgb(0xE6, 0xCF, 0x8E), Color.rgb(0x8F, 0xD3, 0xDA), Color.rgb(0x35, 0x5F, 0xD0), Color.rgb(0xC9, 0xA6, 0x84),
+    )
+
     fun planetLabel(name: String, g: String, current: Int): Bitmap {
         if (testF) return orientationTest(Layout.SEL_LABEL_PX_W, Layout.SEL_LABEL_PX_H)
         val w = Layout.SEL_LABEL_PX_W; val h = Layout.SEL_LABEL_PX_H
         val (bmp, c) = brassFace(w, h)
         val pxPerCm = h / (Layout.SEL_LABEL_H * 100).toFloat()
-        line(c, name, ink(1.2f * pxPerCm).apply { letterSpacing = 0.04f }, w / 2f, h * 0.27f, w * 0.92f, "planet/name")
-        line(c, g, ink(1.1f * pxPerCm, bold = false), w / 2f, h * 0.60f, w * 0.92f, "planet/g")
-        val colors = intArrayOf(Color.rgb(0xB8, 0xB5, 0xAE), Color.rgb(0xC0, 0x5A, 0x2E), Color.rgb(0x2E, 0x6E, 0xB4), Color.rgb(0xD8, 0xB0, 0x80))
-        val r = 0.22f * pxPerCm
+        // name 1.2 cm, shrunk to fit down to 1.1 cm (the D13 0.5° floor is checked at 1.1 cm in LayoutTest)
+        val np = ink(1.2f * pxPerCm).apply { letterSpacing = 0.04f }
+        val maxW = w * 0.92f
+        if (np.measureText(name) > maxW) np.textSize = maxOf(1.1f * pxPerCm, np.textSize * maxW / np.measureText(name))
+        line(c, name, np, w / 2f, h * 0.27f, maxW, "planet/name")
+        line(c, g, ink(1.1f * pxPerCm, bold = false), w / 2f, h * 0.60f, maxW, "planet/g")
+        // where we are in the list (Sun -> out): one dot per planet in its own colour, the current one ringed
+        val colors = PLANET_DOTS
+        val n = colors.size
+        val r = 0.20f * pxPerCm
+        val step = 0.95f * pxPerCm
         val p = Paint(Paint.ANTI_ALIAS_FLAG)
-        for (i in 0..3) {
-            val cx = w / 2f + (i - 1.5f) * 0.75f * pxPerCm; val cy = h * 0.86f
+        for (i in 0 until n) {
+            val cx = w / 2f + (i - (n - 1) / 2f) * step; val cy = h * 0.86f
             p.style = Paint.Style.FILL; p.color = colors[i]; c.drawCircle(cx, cy, r, p)
             p.style = Paint.Style.STROKE; p.strokeWidth = if (i == current) 5f else 2f; p.color = INK
             c.drawCircle(cx, cy, if (i == current) r + 6f else r, p)

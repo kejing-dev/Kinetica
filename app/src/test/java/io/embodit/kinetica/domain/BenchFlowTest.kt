@@ -117,16 +117,62 @@ class BenchFlowTest {
         assertTrue(f.bench.stations[1].rec == null)
     }
 
-    @Test fun planetSelectorStepsBothWaysThroughFourPlanetsAndPersists() {
+    /** User 2026-11-14: ten bodies Sun -> out (Moon right after Earth), ◀ ▶ wrap both ways, the choice persists. */
+    @Test fun planetSelectorCyclesTheSolarSystemBothWaysAndPersists() {
+        val order = listOf(Planet.MERCURY, Planet.VENUS, Planet.EARTH, Planet.MOON, Planet.MARS, Planet.JUPITER, Planet.SATURN, Planet.URANUS, Planet.NEPTUNE, Planet.PLUTO)
+        assertEquals(order, Planet.entries.toList())
         val f = flow()
-        f.planetNext(); assertEquals(Planet.JUPITER, f.bench.planet)
-        f.planetNext(); assertEquals(Planet.MOON, f.bench.planet)
-        f.planetNext(); assertEquals(Planet.MARS, f.bench.planet)
-        f.planetNext(); assertEquals(Planet.EARTH, f.bench.planet)
-        f.planetPrev(); assertEquals(Planet.MARS, f.bench.planet)
-        f.planetPrev(); assertEquals(Planet.MOON, f.bench.planet)
-        f.planetPrev(); assertEquals(Planet.JUPITER, f.bench.planet)
-        assertEquals(Planet.JUPITER, saved.planet)
+        assertEquals(Planet.EARTH, f.bench.planet)
+        val seen = ArrayList<Planet>()
+        repeat(10) { f.planetNext(); seen += f.bench.planet }
+        assertEquals(listOf(Planet.MOON, Planet.MARS, Planet.JUPITER, Planet.SATURN, Planet.URANUS, Planet.NEPTUNE, Planet.PLUTO, Planet.MERCURY, Planet.VENUS, Planet.EARTH), seen)
+        f.planetPrev(); assertEquals(Planet.VENUS, f.bench.planet)
+        f.planetPrev(); assertEquals(Planet.MERCURY, f.bench.planet)
+        f.planetPrev(); assertEquals(Planet.PLUTO, f.bench.planet)
+        assertEquals(Planet.PLUTO, saved.planet)
+    }
+
+    /**
+     * v0.1.3 known issue (v0.1.2 release notes): after a planet change the spring woke up ~35 s later and repeated changes
+     * left a ±2 mm sideways sway. A change puts every station on its new rest with zero velocity, and it stays there.
+     */
+    @Test fun planetChangeRestsEveryStationOnTheNewG() {
+        val f = flow()
+        f.tapSwing(0); f.tapSwing(1); f.tapSwing(2); f.play(2.0)
+        for (p in Planet.entries + Planet.entries.reversed()) {
+            f.setPlanet(p)
+            for (s in f.bench.stations) for (k in s.bodies.indices) {
+                val b = s.bodies[k]
+                assertEquals("$p ${s.index}:$k v", 0.0, b.v.len(), 1e-12)
+                assertEquals("$p ${s.index}:$k on rest", 0.0, b.p.dist(f.bench.eqPos(s, k)), 1e-12)
+            }
+            f.play(0.3)
+        }
+        // then 60 s of nothing: no bob moves more than 0.1 mm, sideways or up and down
+        f.setPlanet(Planet.JUPITER); f.setPlanet(Planet.MOON); f.setPlanet(Planet.EARTH)
+        val start = f.bench.allBodies().map { it.p.copy() }
+        var worst = 0.0
+        repeat(600) {
+            f.play(0.1)
+            f.bench.allBodies().forEachIndexed { i, b -> worst = maxOf(worst, b.p.dist(start[i])) }
+        }
+        assertTrue("drift ${worst * 1000} mm", worst < 1e-4)
+        for (si in 0..2) assertFalse("station $si moving", f.bench.stationMoving(si))
+    }
+
+    /** After a change the ▶ key swings on the new g: the period matches 2π√(L/g) (rod) / 2π√(m/k) (spring) within 3 %. */
+    @Test fun periodAfterAPlanetChangeFollowsTheNewG() {
+        for (p in Planet.entries) {
+            val f = flow(); f.bench.crossStation = false
+            f.tapSwing(0); f.play(1.0)
+            f.setPlanet(p)
+            f.tapSwing(0); f.tapSwing(1); f.play(if (p.g < 2.0) 12.0 else 6.0)
+            for (si in 0..1) {
+                val r = f.readout(f.bench.stations[si])
+                assertEquals("$p $si", Big.PERIOD, r.big)
+                assertTrue("$p $si ${r.bigValue} vs ${ideal(f, si)}", kotlin.math.abs(r.bigValue - ideal(f, si)) / ideal(f, si) <= 0.03)
+            }
+        }
     }
 
     // ------------------------------------------------------------------ ▶ swing keys (D43, user 2026-11-13)
@@ -267,8 +313,8 @@ class BenchFlowTest {
         assertEquals(3, saved.tipIndex)
         // tip 4: brass on the spring (vertical bounce)
         f.setPlanet(Planet.EARTH)
-        f.tapBob(1, 0) // steel -> brass
-        f.pressBob(1, 0); f.dragBob(0f, -0.02f, 0f); f.releaseBob(); f.play(2.0)
+        f.tapBob(1, 0) // steel -> brass (the planet change left the spring on its steel rest; brass rests ~2 cm lower)
+        f.pressBob(1, 0); f.dragBob(0f, -0.04f, 0f); f.releaseBob(); f.play(2.0)
         assertEquals(4, saved.tipIndex)
         // tip 5: the spring on Jupiter
         f.setPlanet(Planet.JUPITER)
@@ -338,7 +384,7 @@ class BenchFlowTest {
     @Test fun stopKeyKeepsTheLastFullPeriod() {
         for (planet in Planet.entries) for (si in 0..1) {
             val f = flow(); f.setPlanet(planet); f.stopAll(); f.play(6.0) // the spring bounces onto its new rest first
-            f.tapSwing(si); f.play(4.0)
+            f.tapSwing(si); f.play(maxOf(4.0, 2.5 * ideal(f, si))) // Pluto's rod takes 3.4 s a swing
             val before = f.readout(f.bench.stations[si])
             assertEquals("$planet $si", Big.PERIOD, before.big)
             f.tapSwing(si) // ■ Stop

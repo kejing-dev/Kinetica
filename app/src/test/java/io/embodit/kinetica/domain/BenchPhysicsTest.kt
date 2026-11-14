@@ -52,16 +52,23 @@ class BenchPhysicsTest {
         assertEquals(0.535, measurePeriod(j, 0), 0.535 * 0.02)
     }
 
-    /** User 2026-11-13: Mars added; every planet's rod period follows 2π√(L/g) (Moon / Mars / Earth / Jupiter). */
-    @Test fun rodPeriodOnAllFourPlanets() {
-        val expected = mapOf(Planet.MOON to 2.095, Planet.MARS to 1.385, Planet.EARTH to 0.851, Planet.JUPITER to 0.535)
-        assertEquals(listOf(1.62, 3.71, 9.81, 24.79), Planet.entries.map { it.g })
-        for ((p, want) in expected) {
+    /** User 2026-11-14: the whole solar system; g lives in BenchConfig and each rod period follows 2π√(L/g). */
+    @Test fun rodPeriodOnEveryPlanet() {
+        val g = mapOf(Planet.MERCURY to 3.70, Planet.VENUS to 8.87, Planet.EARTH to 9.81, Planet.MOON to 1.62, Planet.MARS to 3.71,
+            Planet.JUPITER to 24.79, Planet.SATURN to 10.44, Planet.URANUS to 8.69, Planet.NEPTUNE to 11.15, Planet.PLUTO to 0.62)
+        for ((p, want) in g) assertEquals("$p g", want, p.g, 1e-12)
+        assertEquals(BenchConfig.G_SATURN, Planet.SATURN.g, 0.0)
+        assertEquals(listOf(Planet.PLUTO), Planet.entries.filter { it.dwarf })
+        for (p in Planet.entries) {
+            val want = 2 * Math.PI * kotlin.math.sqrt(BenchConfig.rodL(1) / p.g)
             val b = bench(Hanger.ROD); b.drag = 0.0; b.changePlanet(p)
             assertEquals("$p ideal", want, b.idealPeriod(b.stations[0])!!, 0.002)
             pull(b, 0, 5.0)
-            assertEquals("$p measured", want, measurePeriod(b, 0, 10.0), want * 0.02)
+            assertEquals("$p measured", want, measurePeriod(b, 0, 16.0), want * 0.02)
         }
+        // the values the v0.1.2 test pinned stay the same
+        assertEquals(2.095, 2 * Math.PI * kotlin.math.sqrt(0.18 / Planet.MOON.g), 0.002)
+        assertEquals(0.535, 2 * Math.PI * kotlin.math.sqrt(0.18 / Planet.JUPITER.g), 0.002)
     }
 
     @Test fun rodThirtyDegreesRunsSlow() {

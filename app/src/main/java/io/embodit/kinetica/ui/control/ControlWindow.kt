@@ -80,13 +80,13 @@ fun ControlWindow() {
     }
     LaunchedEffect(Ui.page) {
         Log.i(TAG, "PAGE ${Ui.page} ${Ui.page.stateId}")
-        if (Ui.page != Page.SETTINGS) Ui.exitConfirm = false
+        if (Ui.page != Page.SETTINGS) { Ui.exitConfirm = false; Ui.howTo = false }
     }
 
     Box(Modifier.fillMaxSize().padding(horizontal = 24.dp, vertical = 16.dp)) {
         when (Ui.page) {
             Page.PLAY -> PlayPage(snap, settings, graph)
-            Page.SETTINGS -> SettingsPage(settings, graph)
+            Page.SETTINGS -> if (Ui.howTo) HowToPage(settings, graph) else SettingsPage(settings, graph)
         }
     }
 
@@ -242,6 +242,7 @@ private fun SettingsPage(settings: Settings, graph: Graph) {
                     }
                 } else {
                     SecondaryButton(stringResource(R.string.btn_quit), "settings/quit", onClick = { Ui.exitConfirm = true; Log.i(TAG, "CONFIRM EXIT P3") }, icon = R.drawable.ic_exit, modifier = Modifier.fillMaxWidth(), danger = true)
+                    SecondaryButton(stringResource(R.string.btn_how_to), "settings/howto", onClick = { Ui.howTo = true; Log.i(TAG, "HOWTO on") }, icon = R.drawable.ic_help, modifier = Modifier.fillMaxWidth())
                 }
             }
         }
@@ -251,6 +252,59 @@ private fun SettingsPage(settings: Settings, graph: Graph) {
         }
     }
 }
+
+/** One row of the how-to table: icon + action, the hand way, the controller way. */
+private class HowRow(val icon: Int, val title: Int, val hand: Int, val ctrl: Int, val key: String)
+
+private val HOW_ROWS = listOf(
+    HowRow(R.drawable.ic_touch, R.string.how_to_pull, R.string.how_to_pull_hand, R.string.how_to_pull_ctrl, "pull"),
+    HowRow(R.drawable.ic_tab_play, R.string.how_to_swing, R.string.how_to_swing_hand, R.string.how_to_swing_ctrl, "swing"),
+    HowRow(R.drawable.ic_swap, R.string.how_to_ball, R.string.how_to_ball_hand, R.string.how_to_ball_ctrl, "ball"),
+    HowRow(R.drawable.ic_unfold, R.string.how_to_tag, R.string.how_to_tag_hand, R.string.how_to_tag_ctrl, "tag"),
+    HowRow(R.drawable.ic_language, R.string.how_to_planet, R.string.how_to_planet_hand, R.string.how_to_planet_ctrl, "planet"),
+    HowRow(R.drawable.ic_open_with, R.string.how_to_move, R.string.how_to_move_hand, R.string.how_to_move_ctrl, "move"),
+)
+
+/**
+ * 怎么操作 / How to (B19, user 2026-11-14 光影渲染: "write how to operate it on one settings screen"): every main action in one
+ * row, the hand gesture and the controller way side by side; [返回] goes back to the settings controls. Mute stays (D15).
+ */
+@Composable
+private fun HowToPage(settings: Settings, graph: Graph) {
+    PageColumn {
+        Row(Modifier.fillMaxWidth().height(64.dp), verticalAlignment = Alignment.CenterVertically) {
+            SecondaryButton(stringResource(R.string.btn_back), "howto/back", onClick = { Ui.howTo = false; Log.i(TAG, "HOWTO off") }, icon = R.drawable.ic_back)
+            Spacer(Modifier.width(16.dp))
+            Txt(stringResource(R.string.how_to_title), "howto/title", style = PicoTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            Spacer(Modifier.width(16.dp))
+            ToggleButton(stringResource(R.string.btn_mute), "howto/mute", on = settings.muted, icon = if (settings.muted) R.drawable.ic_volume_off else R.drawable.ic_volume_up,
+                onClick = { graph.update { it.copy(muted = !it.muted) }; Log.i(TAG, "MUTE ${!settings.muted}") })
+        }
+        Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(22.dp)).background(KineticaColors.Card).padding(horizontal = 16.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Spacer(Modifier.width(HOW_TITLE_W))
+                Txt(stringResource(R.string.how_to_col_hand), "howto/col-hand", style = PicoTheme.typography.labelLarge, color = KineticaColors.InkSecondary, modifier = Modifier.weight(1f))
+                Spacer(Modifier.width(12.dp))
+                Txt(stringResource(R.string.how_to_col_ctrl), "howto/col-ctrl", style = PicoTheme.typography.labelLarge, color = KineticaColors.InkSecondary, modifier = Modifier.weight(1f))
+            }
+            HOW_ROWS.forEach { r ->
+                Row(Modifier.fillMaxWidth().heightIn(min = 36.dp), verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.width(HOW_TITLE_W), verticalAlignment = Alignment.CenterVertically) {
+                        Icon(painter = painterResource(r.icon), contentDescription = null, modifier = Modifier.size(22.dp), tint = KineticaColors.Ink)
+                        Spacer(Modifier.width(8.dp))
+                        Txt(stringResource(r.title), "howto/${r.key}", style = PicoTheme.typography.labelLarge, color = KineticaColors.Ink, maxLines = 2)
+                    }
+                    Txt(stringResource(r.hand), "howto/${r.key}-hand", style = PicoTheme.typography.bodyMedium, color = KineticaColors.Ink, maxLines = 2, modifier = Modifier.weight(1f))
+                    Spacer(Modifier.width(12.dp))
+                    Txt(stringResource(r.ctrl), "howto/${r.key}-ctrl", style = PicoTheme.typography.bodyMedium, color = KineticaColors.Ink, maxLines = 2, modifier = Modifier.weight(1f))
+                }
+            }
+        }
+    }
+}
+
+private val HOW_TITLE_W = 168.dp
 
 /** D26 / D44 exit: save, release, close both window containers, remove every task, then end the process. */
 internal fun exitApp(context: Context, graph: Graph) {

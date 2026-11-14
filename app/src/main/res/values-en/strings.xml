@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- English is the default (values/); this copy of the how-to block only makes the English set explicit for ui_gates how-to. -->
+<resources>
+    <!-- 怎么操作 / How to (B19, ui_gates how-to): one row per main action, hand way + controller way -->
+    <string name="how_to_title">How to play</string>
+    <string name="btn_how_to">How to</string>
+    <string name="how_to_col_hand">Hand</string>
+    <string name="how_to_col_ctrl">Controller</string>
+    <string name="how_to_pull">Pull &amp; let go</string>
+    <string name="how_to_pull_hand">Pinch a ball, pull, let go</string>
+    <string name="how_to_pull_ctrl">Trigger on a ball, drag, release</string>
+    <string name="how_to_swing">▶ Swing</string>
+    <string name="how_to_swing_hand">Pinch ▶. Again to stop</string>
+    <string name="how_to_swing_ctrl">Trigger on ▶. Again to stop</string>
+    <string name="how_to_ball">Change ball</string>
+    <string name="how_to_ball_hand">Pinch a ball, don\'t pull</string>
+    <string name="how_to_ball_ctrl">Tap the trigger on a ball</string>
+    <string name="how_to_tag">Tags</string>
+    <string name="how_to_tag_hand">Pinch: swap. Drag up/down: length</string>
+    <string name="how_to_tag_ctrl">Tap: swap. Drag up/down: length</string>
+    <string name="how_to_planet">Planet</string>
+    <string name="how_to_planet_hand">Pinch ◀ ▶ or the planet</string>
+    <string name="how_to_planet_ctrl">Trigger on ◀ ▶</string>
+    <string name="how_to_move">Move bench</string>
+    <string name="how_to_move_hand">Grab the wood base, drag</string>
+    <string name="how_to_move_ctrl">Drag the base. Stick turns it</string>
+</resources>

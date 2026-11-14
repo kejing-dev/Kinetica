@@ -96,6 +96,39 @@ object Layout {
     // right wing: planet selector (globe between ◀ ▶ keys on a ledge), the name + g label, the KINETICA plaque under it
     val SEL_GLOBE = Vec3(0.0, 0.052, 0.045)
     const val SEL_GLOBE_D = 0.064
+    /**
+     * Ringed globes (tools/build_planets.py): Saturn's ring reaches 0.68 x the model scale from the centre, Uranus' thin
+     * ring 0.62; the other bodies are unit-diameter spheres (0.5). The ring has to stay clear of the ◀ ▶ keys.
+     */
+    fun globeReachM(p: Planet): Double = SEL_GLOBE_D * when (p) { Planet.SATURN -> 0.68; Planet.URANUS -> 0.62; else -> 0.5 }
+
+    /** Axis tilt of each globe as (pitch toward the user, roll), degrees: Saturn's rings open, Uranus nearly pole-on. */
+    fun planetTiltDeg(p: Planet): Pair<Double, Double> = when (p) {
+        Planet.SATURN -> 22.0 to -12.0
+        Planet.URANUS -> 68.0 to 8.0
+        else -> 0.0 to 0.0
+    }
+
+    /** One frame of the globe change (D51): offsets in metres along the selector's x, scales of the model. */
+    data class GlobeSwitch(val inOffsetM: Double, val inScale: Double, val outOffsetM: Double, val outScale: Double, val done: Boolean)
+
+    const val GLOBE_SWITCH_MS = 340.0
+    const val GLOBE_SLIDE_M = 0.03
+
+    fun globeSwitch(msSince: Long): GlobeSwitch {
+        val t = (msSince / GLOBE_SWITCH_MS).coerceIn(0.0, 1.0)
+        if (t >= 1.0) return GlobeSwitch(0.0, 1.0, 0.0, 0.0, true)
+        // in: ease-out-back (overshoot ~6 %); out: ease-in, gone by 70 % of the time
+        val c = 1.2
+        val u = t - 1
+        val back = 1 + (c + 1) * u * u * u + c * u * u
+        val to = (t / 0.7).coerceAtMost(1.0)
+        return GlobeSwitch(
+            inOffsetM = GLOBE_SLIDE_M * (1 - back), inScale = 0.4 + 0.6 * back,
+            outOffsetM = GLOBE_SLIDE_M * to * to, outScale = if (to >= 1.0) 0.0 else 1.0 - 0.6 * to * to,
+            done = false,
+        )
+    }
     val SEL_PREV = Vec3(-0.072, 0.052, 0.022)
     val SEL_NEXT = Vec3(0.072, 0.052, 0.022)
     const val SEL_KEY_D = 0.046
