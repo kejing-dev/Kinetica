@@ -22,27 +22,29 @@
 | | |
 |---|---|
 | ![三个挂位一起摆](docs/shot-01.jpg) | ![捏住摆杆小球拉开](docs/shot-02.jpg) |
-| 三个挂位一起摆，铜牌读出摆杆 0.87 s | 捏住左边摆杆的小球拉开（S2 捏住） |
-| ![木星上周期变短](docs/shot-03.jpg) | ![左边的球撞中间的](docs/shot-04.jpg) |
-| 换到木星（24.79 m/s²）：摆杆 0.54 s | 左边的球撞到中间的弹簧 |
-| ![三档长短](docs/shot-05.jpg) | ![设置页](docs/shot-06.jpg) |
-| 三根不同长短的摆杆并排比 | 设置：语言、叫回面前、恢复台子、退出应用 |
+| 三个挂位一起摆，铜牌读出摆杆 0.86 s | 捏住左边摆杆的小球拉开，控制窗提示「拉到想要的地方，松手」 |
+| ![土星](docs/shot-03.jpg) | ![冥王星](docs/shot-04.jpg) |
+| 换到土星（10.44 m/s²，带环）：摆杆 0.83 s | 换到冥王星（矮行星，0.62 m/s²）：摆杆 3.41 s |
+| ![三档长短](docs/shot-05.jpg) | ![怎么操作](docs/shot-06.jpg) |
+| 三根不同长短的摆杆并排比：0.70 / 0.85 / 0.99 s | 设置里的「怎么操作」：手势和手柄做法并排写 |
 
-截图和演示视频都是在 PICO 模拟器里用调试广播驱动拍的（走的是和真实捏合同一个监听入口），**非真实手势录像**。
+截图和演示视频都是在 PICO 模拟器里用调试广播驱动拍的（走的是和真实捏合同一个监听入口），**非真实手势录像**，演示视频无声。
 
 ### 安装
 
 ```bash
-adb install -r Kinetica-v0.1.3.apk
+adb install -r Kinetica-v0.1.4.apk
 pico-cli app launch io.embodit.kinetica
 ```
 
 Release 里的 APK 是 `assembleRelease` 出的**未签名**包（给 Vibe Lab 平台托管签名用）；自己装到头显上需要先签名，或者在本仓库 `./gradlew assembleDebug` 出调试包再装。
 
-### 已知问题（v0.1.3）
+### 已知问题（v0.1.4）
 
-- 换星球会把三个挂位都放回新重力下的平衡位置、停住（不再自己弹、不再侧晃），要接着摆就再点 ▶。
-- 三种拖法（直接抓、手柄射线、眼手）的手感、3D 按键真手势点按、两侧翼板不转头能否看清、摇杆转台子、72 fps、声音、启动摆放，都还没在真机上确认。
+- 真机上起拖门槛是 4 mm（研发回放用的是 2.5 cm），所以捏住以后比回放更容易拖起来；捏球时手抖不到 8 mm 仍当点一下（换球）。
+- 拉开以后停住几秒再松手，球可能带着停住前的速度出发，而不是从静止摆起来（真机待确认）。
+- 换星球会把三个挂位都放回新重力下的平衡位置、停住，要接着摆就再点 ▶。
+- 三种拖法（直接抓、手柄射线、眼手）的手感、手柄点音量条每一档、十个星球模型、手柄射线条数、声音，都还没在真机上确认。
 
 ## English
 
@@ -57,21 +59,23 @@ A walnut-and-brass physics bench on your desk. Pinch a ball, pull, let go. Watch
 - Control window: swing it again, stop all, slow-mo ×¼, mute; settings: bring it here, reset bench, quit.
 - Grab the walnut base to move the bench, turn it with the controller stick. Chinese and English, fully offline, no account.
 
-Screenshots (English UI): see the Vibe Lab listing; the Chinese ones are above. Screenshots and the demo video were captured on the PICO emulator, driven by the debug broadcast (same listener as a real pinch): **not a recording of real hand gestures**.
+Screenshots (English UI): see the Vibe Lab listing; the Chinese ones are above. Screenshots and the demo video were captured on the PICO emulator, driven by the debug broadcast (same listener as a real pinch): **not a recording of real hand gestures**; the demo video has no sound.
 
 ### Install
 
 ```bash
-adb install -r Kinetica-v0.1.3.apk
+adb install -r Kinetica-v0.1.4.apk
 pico-cli app launch io.embodit.kinetica
 ```
 
 The APK on the Release is the **unsigned** `assembleRelease` build (the Vibe Lab platform signs it); to sideload, sign it first or build `./gradlew assembleDebug` from this repo.
 
-### Known issues (v0.1.3)
+### Known issues (v0.1.4)
 
-- A planet change puts all three hangers on their rest under the new g and stops them (no more self-bounce or sideways sway); tap ▶ to swing again.
-- Not yet confirmed on the headset: feel of the three drag inputs (direct grab, controller ray, eye-hand), real taps on the 3D keys, reading the side wings without turning, turning the bench with the stick, 72 fps, sound, and the start-up placement.
+- On the headset a drag starts after 4 mm (the replay tests use 2.5 cm), so a held ball picks up sooner than in the replays; a pinch that wobbles less than 8 mm is still a tap (changes the ball).
+- If you pull a ball, hold still for a few seconds and then let go, it may start with the speed it had before you stopped instead of from rest (to be checked on the headset).
+- A planet change puts all three hangers on their rest under the new g and stops them; tap ▶ to swing again.
+- Not yet confirmed on the headset: feel of the three drag inputs (direct grab, controller ray, eye-hand), tapping every volume stop with the controller, the ten planet models, one ray per controller, and sound.
 
 ## Credits
 
