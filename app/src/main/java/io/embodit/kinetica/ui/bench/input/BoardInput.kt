@@ -138,6 +138,20 @@ object BoardInputLog {
     }
 }
 
+/**
+ * Sums the per-event `dragAmount` of one press into the travel since the press (SDK 6.1.9 sends deltas:
+ * `dragAmount = position3d - previousPosition3d`, D53, board-input template 2026-11-14).
+ * Unit test: 60 events x 2 mm must total 12 cm, reset() back to zero.
+ */
+class DragTotal {
+    var x = 0f; private set
+    var y = 0f; private set
+    var z = 0f; private set
+    var events = 0; private set
+    fun reset() { x = 0f; y = 0f; z = 0f; events = 0 }
+    fun add(step: Offset3M): Offset3M { x += step.x; y += step.y; z += step.z; events++; return Offset3M(x, y, z) }
+}
+
 /** Shared between the tap and drag detectors so one press is never handled twice. */
 private class TapGuard { @Volatile var lastTapMs = 0L }
 
@@ -234,10 +248,12 @@ fun <T : Any> Modifier.boardInput(
             var startMs = 0L
             var maxTravel = 0f
             var dragging = false
+            val total = DragTotal()
             detectSpatialDragGesture(
                 context = context,
                 targetedToEntity = TargetEntity.any(),
                 onDragStart = { _, v ->
+                    total.reset()
                     val (hit, path) = resolveUp(v.targetEntity, currentResolver, config.maxResolveDepth)
                     startHit = hit; startPath = path; startSrc = InputSource.of(v.interactionKind)
                     startMs = SystemClock.uptimeMillis(); maxTravel = 0f; dragging = false
@@ -263,7 +279,8 @@ fun <T : Any> Modifier.boardInput(
                     dragging = false
                 },
             ) { v ->
-                val d = toMeters(v.dragAmount)
+                // dragAmount is this event's delta (SDK 6.1.9): add it up
+                val d = total.add(toMeters(v.dragAmount))
                 if (d.length > maxTravel) maxTravel = d.length
                 val hit = startHit
                 if (!dragging && hit != null && d.length > config.dragStartM) {

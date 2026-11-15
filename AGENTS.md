@@ -66,6 +66,9 @@ Other: `tap "bob <i> <k>"|"tag <i>"|"go <i>"|prev|next|globe|nameplate`, `drag "
 `release "<vx> <vy> <vz>"`, `replay`, `stop`, `slow on|off`, `restore`, `preset chaos`, `size "<i> <s>"`,
 `mat "<i> <k> wood|steel|brass"`, `type "<i> rod|spring|double"`, `tip <0-6>`, `answer "<tip> <station>"`, `ff <s>`, `stick <x|off>`,
 `freeze on|off`, `ftest on|off` (F↑ on every brass face, D10), `mute on|off`, `volume 0-2`, `dump`, `instances`.
+`dragdeltas "bob <i> <k>|tag <i>|bench <dx> <dy> <dz> <n> [hold]"`: the headset-shaped drag (D53, v0.1.4): n events of one
+per-event delta every 16 ms through `DragTotal` + the `dragStartM` gate, the same path as BoardInput's drag detector
+(SDK 6.1.9 `dragAmount` is the per-event delta; `BoardInput` sums it). Log `DRAGREPLAY`.
 Stations: 0 left, 1 middle, 2 right; bob k = 0 (upper) / 1 (the double's lower bob).
 
 ## Screenshot list (QA)

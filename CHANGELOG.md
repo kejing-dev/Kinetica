@@ -1,5 +1,13 @@
 # Changelog / 更新记录
 
+## v0.1.4 (2026-11-14)
+
+中文
+- 拉球、拖挂牌改长短、抓台座挪台子现在跟手了：系统每次只报这一下移动了多少，以前当成「从按下到现在一共移动了多少」，东西只在原地抖、常常变成点一下（换球材质）。现在按下清零、每一下加起来。
+
+English
+- Pulling a ball, dragging a tag to change size and moving the bench by its base now follow the hand. The system reports each step of the movement, and we used to read it as the whole movement since the press, so things only jittered in place and the press often turned into a tap (changing the ball's material). Steps are now added up from the press.
+
 ## v0.1.3 (2026-11-14)
 
 中文

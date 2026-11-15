@@ -15,6 +15,8 @@ import io.embodit.kinetica.ui.bench.BenchListener
 import io.embodit.kinetica.ui.bench.BenchNames
 import io.embodit.kinetica.ui.bench.BenchTextures
 import io.embodit.kinetica.ui.bench.SceneHolder
+import io.embodit.kinetica.ui.bench.input.BoardInputConfig
+import io.embodit.kinetica.ui.bench.input.DragTotal
 import io.embodit.kinetica.ui.bench.input.InputSource
 import io.embodit.kinetica.ui.bench.input.Offset3M
 import io.embodit.kinetica.ui.bench.route
@@ -39,6 +41,8 @@ import kotlin.math.sin
  *   tip <0-6> · answer "<tip> <station>" · coach on|off · ftest on|off (F↑ on every brass face)
  *   page play|settings · howto on|off · lang zh|en|system · mute on|off · volume 0-2 · closepanel · openpanel · exitask · confirm · cancel
  *   s0hold on|off · dump · instances
+ *   dragdeltas "bob <i> <k>|tag <i>|bench  <dx> <dy> <dz> <n> [hold]"   headset-shaped stream (D53): n events of one
+ *     per-event delta each 16 ms through DragTotal + the dragStartM gate, exactly as BoardInput (bob / tag: bench axes)
  */
 class DebugCommandReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -108,6 +112,31 @@ class DebugCommandReceiver : BroadcastReceiver() {
                         if (f.getOrNull(4) != "hold") listener.onDragEnd()
                     }
                 }
+            }
+            "dragdeltas" -> {
+                // Same path as BoardInput's drag detector: reset at press, add each event's delta, start past dragStartM,
+                // onDragMove(total). The deltas are what SDK 6.1.9 sends (position3d - previousPosition3d).
+                val (t, rest) = when (f.getOrNull(0)) {
+                    "bob" -> BenchNames.bob(f[1].toInt(), f[2].toInt()) to f.drop(3)
+                    "tag" -> BenchNames.tag(f[1].toInt()) to f.drop(2)
+                    else -> BenchNames.BASE to f.drop(1)
+                }
+                val step = Offset3M(rest[0].toFloat(), rest[1].toFloat(), rest[2].toFloat())
+                val n = rest[3].toInt(); val hold = rest.getOrNull(4) == "hold"
+                val stageAxes = t == BenchNames.BASE
+                val total = DragTotal(); val gate = BoardInputConfig().dragStartM
+                val h = android.os.Handler(android.os.Looper.getMainLooper())
+                var dragging = false
+                total.reset()
+                if (t.startsWith("bob")) listener.onPress(t, InputSource.UNKNOWN)
+                Log.i(TAG, "DRAGREPLAY press $t step=$step n=$n")
+                for (i in 0 until n) h.postDelayed({
+                    val d = total.add(step)
+                    if (!dragging && d.length > gate) { dragging = listener.onDragStart(t, InputSource.UNKNOWN); Log.i(TAG, "DRAGREPLAY start ev=${total.events} taken=$dragging") }
+                    if (dragging) { if (stageAxes) listener.onDragMove(d) else moveLocal(d) }
+                    if (total.events % 10 == 0 || i == n - 1) Log.i(TAG, "DRAGREPLAY ev=${total.events} total=(%.3f, %.3f, %.3f) len=%.3f m".format(d.x, d.y, d.z, d.length))
+                    if (i == n - 1 && !hold) { if (dragging) listener.onDragEnd() else listener.onTap(t, InputSource.UNKNOWN, null); Log.i(TAG, "DRAGREPLAY end dragging=$dragging") }
+                }, 16L * (i + 1))
             }
             "release" -> flow.releaseBob(if (f.size >= 3) Vec3(f[0].toDouble(), f[1].toDouble(), f[2].toDouble()) else null)
             "replay" -> flow.replay()
