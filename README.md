@@ -44,7 +44,7 @@ Release 里的 APK 是 `assembleRelease` 出的**未签名**包（给 Vibe Lab �
 - 真机上起拖门槛是 4 mm（研发回放用的是 2.5 cm），所以捏住以后比回放更容易拖起来；捏球时手抖不到 8 mm 仍当点一下（换球）。
 - 拉开以后停住几秒再松手，球可能带着停住前的速度出发，而不是从静止摆起来（真机待确认）。
 - 换星球会把三个挂位都放回新重力下的平衡位置、停住，要接着摆就再点 ▶。
-- 三种拖法（直接抓、手柄射线、眼手）的手感、手柄点音量条每一档、十个星球模型、手柄射线条数、声音，都还没在真机上确认。
+- 三种拖法（直接抓、手柄射线、眼手）的手感、手柄点音量条每一档、十个星球模型、手柄射线条数、声音：用户 2026-11-16 真机看过放行。
 
 ## English
 
@@ -75,7 +75,7 @@ The APK on the Release is the **unsigned** `assembleRelease` build (the Vibe Lab
 - On the headset a drag starts after 4 mm (the replay tests use 2.5 cm), so a held ball picks up sooner than in the replays; a pinch that wobbles less than 8 mm is still a tap (changes the ball).
 - If you pull a ball, hold still for a few seconds and then let go, it may start with the speed it had before you stopped instead of from rest (to be checked on the headset).
 - A planet change puts all three hangers on their rest under the new g and stops them; tap ▶ to swing again.
-- Not yet confirmed on the headset: feel of the three drag inputs (direct grab, controller ray, eye-hand), tapping every volume stop with the controller, the ten planet models, one ray per controller, and sound.
+- Feel of the three drag inputs (direct grab, controller ray, eye-hand), tapping every volume stop with the controller, the ten planet models, one ray per controller, and sound: checked on a headset by the user on 2026-11-16 and approved.
 
 ## Credits
 
